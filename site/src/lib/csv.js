@@ -26,13 +26,16 @@ export async function loadBibliography() {
         collaborators,
         venue: r.Publication?.trim(),
         isbn: (r.ISBN || '').trim(),
-        PublisherURL: r.PublisherURL,
-        GoogleBooksURL: r.GoogleBooksURL,
-        PhilPapersURL: r.PhilPapersURL,
+        PublisherURL: r.URL_Publisher,
+        GoogleBooksURL: r.URL_GoogleBooks,
+        PhilPapersURL: r.URL_PhilPapers,
         doi: r.DOI,
         tags,
         citations,
         ScholarURL: (r.ScholarURL || '').trim(),
+        notes: (r.Notes || '').trim(),
+        edition: (r.Edition || '').trim(),
+        status: (r.Status || '').trim(),
       }
     })
 }
