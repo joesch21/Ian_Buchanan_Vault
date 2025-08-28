@@ -1,15 +1,15 @@
-Year,Title,Type,Co-authors/Editors,Publication,ISBN,PublisherURL,GoogleBooksURL,PhilPapersURL,Tags
-1997,Deleuze and Literature,Edited volume,Claire Colebrook,Edinburgh University Press,9780748612725,,,,Affect
-2000,Michel de Certeau,Book,,SAGE Publications,9780761968967,,,,Politics
-2000,A Dictionary of Critical Theory,Book,,Oxford University Press,9780195126691,,,,Pedagogy
-2000,Deleuzism: A Metacommentary,Book,,Duke University Press,9780822321813,,,,Schizoanalysis;Assemblage
-2004,Deleuze and the Schizoanalysis of Cinema,Edited volume,Patricia Pisters; Adrian Parr,Continuum,9780826479437,,,,Schizoanalysis;Affect
-2006,Fredric Jameson: Live Theory,Book,,Continuum,9780826461430,https://www.bloomsbury.com/us/fredric-jameson-9780826461430,,https://philpapers.org/rec/BUCFJL,Politics;Marxism/Jameson;Pedagogy
-2008,"Deleuze and Guattari's ""Anti-Oedipus"": A Critical Introduction and Guide",Book,,Routledge,9781847064108,,,,Schizoanalysis;Pedagogy
-2011,Deleuze and the Schizoanalysis of Cinema,Edited volume,Patricia Pisters,Bloomsbury,9781441173824,,,,Schizoanalysis;Affect
-2013,Deleuze and the Schizoanalysis of Visual Culture,Edited volume,Laura Cull,Bloomsbury,9781780936708,,,,Schizoanalysis;Affect
-2015,Assemblage and the Everyday,Article,,Deleuze Studies,,,,,Assemblage
-2017,"Assemblage, Affect, and Art",Article,,Deleuze Studies,,,,,Assemblage;Affect
-2017,The Incomplete Project of Schizoanalysis,Book,,Edinburgh University Press,9780748676122,,,,Schizoanalysis
-2019,On Jameson,Book,,Haymarket Books,9781608469080,,,,Marxism/Jameson
-2021,Assemblage Theory and Method,Book,,Bloomsbury,978-1350014680,https://www.bloomsbury.com/9781350014680,https://books.google.com/books?vid=ISBN9781350014680,https://philpapers.org/rec/BUCAAT,Assemblage;Pedagogy
+Year,Title,Type,Co-authors/Editors,Publication,ISBN,PublisherURL,GoogleBooksURL,PhilPapersURL,Tags,Citations,ScholarURL
+1997,Deleuze and Literature,Edited volume,Claire Colebrook,Edinburgh University Press,9780748612725,,,,Affect,0,
+2000,Michel de Certeau,Book,,SAGE Publications,9780761968967,,,,Politics,0,
+2000,A Dictionary of Critical Theory,Book,,Oxford University Press,9780195126691,,,,Pedagogy,250,https://scholar.google.com/scholar?q=A+Dictionary+of+Critical+Theory
+2000,Deleuzism: A Metacommentary,Book,,Duke University Press,9780822321813,,,,Schizoanalysis;Assemblage,150,https://scholar.google.com/scholar?q=Deleuzism%3A+A+Metacommentary
+2004,Deleuze and the Schizoanalysis of Cinema,Edited volume,Patricia Pisters; Adrian Parr,Continuum,9780826479437,,,,Schizoanalysis;Affect,85,https://scholar.google.com/scholar?q=Deleuze+and+the+Schizoanalysis+of+Cinema
+2006,Fredric Jameson: Live Theory,Book,,Continuum,9780826461430,https://www.bloomsbury.com/us/fredric-jameson-9780826461430,,https://philpapers.org/rec/BUCFJL,Politics;Marxism/Jameson;Pedagogy,210,https://scholar.google.com/scholar?q=Fredric+Jameson%3A+Live+Theory
+2008,"Deleuze and Guattari's ""Anti-Oedipus"": A Critical Introduction and Guide",Book,,Routledge,9781847064108,,,,Schizoanalysis;Pedagogy,300,https://scholar.google.com/scholar?q=Deleuze+and+Guattari%27s+Anti-Oedipus
+2011,Deleuze and the Schizoanalysis of Cinema,Edited volume,Patricia Pisters,Bloomsbury,9781441173824,,,,Schizoanalysis;Affect,70,https://scholar.google.com/scholar?q=Deleuze+and+the+Schizoanalysis+of+Cinema
+2013,Deleuze and the Schizoanalysis of Visual Culture,Edited volume,Laura Cull,Bloomsbury,9781780936708,,,,Schizoanalysis;Affect,40,https://scholar.google.com/scholar?q=Deleuze+and+the+Schizoanalysis+of+Visual+Culture
+2015,Assemblage and the Everyday,Article,,Deleuze Studies,,,,,Assemblage,145,https://scholar.google.com/scholar?q=Assemblage+and+the+Everyday
+2017,"Assemblage, Affect, and Art",Article,,Deleuze Studies,,,,,Assemblage;Affect,120,https://scholar.google.com/scholar?q=Assemblage,+Affect,+and+Art
+2017,The Incomplete Project of Schizoanalysis,Book,,Edinburgh University Press,9780748676122,,,,Schizoanalysis,60,https://scholar.google.com/scholar?q=The+Incomplete+Project+of+Schizoanalysis
+2019,On Jameson,Book,,Haymarket Books,9781608469080,,,,Marxism/Jameson,30,https://scholar.google.com/scholar?q=On+Jameson+Buchanan
+2021,Assemblage Theory and Method,Book,,Bloomsbury,978-1350014680,https://www.bloomsbury.com/9781350014680,https://books.google.com/books?vid=ISBN9781350014680,https://philpapers.org/rec/BUCAAT,Assemblage;Pedagogy,320,https://scholar.google.com/scholar?q=Assemblage+Theory+and+Method
