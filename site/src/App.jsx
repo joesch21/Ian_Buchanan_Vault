@@ -198,14 +198,24 @@ function App() {
                 </span>
               </div>
               <div style={{color:'var(--muted)'}}>{item.year} — {item.venue}</div>
-              <div style={{marginTop:6, display:'flex', gap:8, alignItems:'center', flexWrap:'wrap'}}>
-                <span className="badge" title="Google Scholar citations">★ {item.citations || 0}</span>
-                {item.ScholarURL && <a className="badge" href={item.ScholarURL} target="_blank" rel="noreferrer">Scholar</a>}
+              <div className="meta-row">
+                <span className="cite-badge" title={`Citations: ${item.citations || 0}`}>★ {item.citations || 0}</span>
+                {item.ScholarURL && (
+                  <a className="link-pill" href={item.ScholarURL} target="_blank" rel="noreferrer">
+                    Scholar
+                  </a>
+                )}
               </div>
               {item.collaborators.length > 0 && (
-                <div style={{marginTop:4,fontSize:'.9rem'}}>With: {item.collaborators.join(', ')}</div>
+                <div className="small-muted" style={{marginTop:4}}>
+                  With: {item.collaborators.join(', ')}
+                </div>
               )}
-              {item.isbn && <div style={{marginTop:4,fontSize:'.9rem',wordBreak:'break-word'}}>ISBN: {item.isbn}</div>}
+              {item.isbn && (
+                <div className="small-muted" style={{marginTop:4, wordBreak:'break-word'}}>
+                  ISBN: {item.isbn}
+                </div>
+              )}
               {item.tags.length > 0 && (
                 <div style={{marginTop:8, display:'flex', gap:6, flexWrap:'wrap'}}>
                   {item.tags.map((tag) => (

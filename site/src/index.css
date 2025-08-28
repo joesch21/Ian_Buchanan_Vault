@@ -81,3 +81,10 @@ body {
   height:8px;
   border-radius:2px;
 }
+
+/* Citation badge + link pills */
+.meta-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px; }
+.cite-badge { font-size:.78rem; padding:.12rem .45rem; border-radius:999px; background:#232734; color:var(--muted); }
+.link-pill { font-size:.78rem; padding:.12rem .45rem; border-radius:999px; background:#1b2030; color:#aeb4c0; text-decoration:none; border:1px solid #2a3140; }
+.link-pill:hover { filter:brightness(1.12); }
+.small-muted { font-size:.9rem; color:var(--muted); }
