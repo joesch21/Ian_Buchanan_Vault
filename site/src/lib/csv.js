@@ -18,5 +18,9 @@ export async function loadBibliography() {
         : [],
       venue: r.Publication,
       isbn: r.ISBN,
+      PublisherURL: r.PublisherURL,
+      GoogleBooksURL: r.GoogleBooksURL,
+      PhilPapersURL: r.PhilPapersURL,
+      doi: r.DOI,
     }))
 }
