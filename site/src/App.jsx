@@ -221,8 +221,17 @@ function App() {
           </div>
           <div className="card">
             <strong>Wikipedia Block</strong>
+            <p style={{color:'var(--muted)', fontSize:'.9rem', marginTop:'6px', lineHeight:1.4}}>
+              This box generates a pre-formatted bibliography in <em>Wikipedia markup</em>.
+              <br/>
+              <strong>How you can help:</strong>
+              <br/>• Filter the list (type, year, tags) to the items you want.
+              <br/>• Click <em>Copy to clipboard</em>.
+              <br/>• Paste the block into Wikipedia’s editor (e.g., Ian Buchanan’s page) or reuse it for course pages and bibliographic wikis.
+            </p>
+
             <textarea
-              style={{width:'100%',height:'220px',marginTop:8,fontFamily:'monospace'}}
+              style={{width:'100%', height:'220px', marginTop:8, fontFamily:'monospace'}}
               readOnly
               value={generateWiki(filtered)}
             />
@@ -230,6 +239,7 @@ function App() {
               className="button"
               style={{marginTop:8}}
               onClick={() => navigator.clipboard.writeText(generateWiki(filtered))}
+              title="Copy the formatted Wikipedia markup to your clipboard"
             >
               Copy to clipboard
             </button>
