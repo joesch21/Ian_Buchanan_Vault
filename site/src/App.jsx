@@ -54,16 +54,19 @@ function App() {
   }, [results, heatOn, topN])
 
   const counts = useMemo(() => groupByYear(entries), [entries])
-  const years = useMemo(
-    () => Object.keys(counts).map((y) => parseInt(y)).sort((a, b) => a - b),
+  const groupedByYear = useMemo(
+    () =>
+      Object.entries(counts)
+        .map(([y, c]) => [Number(y), c])
+        .sort((a, b) => a[0] - b[0]),
     [counts],
   )
   const citationsByYear = useMemo(() => {
     const map = new Map()
-    for (const d of entries) map.set(d.year, (map.get(d.year) || 0) + (d.citations || 0))
+    for (const d of entries)
+      map.set(d.year, (map.get(d.year) || 0) + (d.citations || 0))
     return map
   }, [entries])
-  const maxCount = Math.max(0, ...Object.values(counts))
   const maxCite = Math.max(1, ...Array.from(citationsByYear.values()))
   const [minYear, maxYear] = bounds
 
@@ -122,33 +125,66 @@ function App() {
           />
         </label>
       </div>
-      <div className="timeline">
-        {years.map((y) => {
-          const count = counts[y]
-          const height = maxCount ? (count / maxCount) * 50 : 0
+      <div
+        style={{
+          display: 'flex',
+          gap: 6,
+          alignItems: 'flex-end',
+          marginTop: 10,
+          overflowX: 'auto',
+          paddingBottom: 6,
+        }}
+      >
+        {groupedByYear.map(([y, count]) => {
+          const height = 10 + Math.min(120, count * 18)
           const yrCites = citationsByYear.get(y) || 0
           const alpha = Math.min(0.9, (yrCites / maxCite) ** 0.5)
           const bg = `rgba(76,154,255,${alpha})`
           return (
             <div
               key={y}
-              className="bar"
-              style={{ height: `${height}px`, background: bg }}
-              onClick={() => setYearRange([y, y])}
               title={`${y}: ${count} works • ${yrCites} cites`}
-            >
-              <span className="year-label">{y}</span>
-            </div>
+              onClick={() => setYearRange([y, y])}
+              style={{
+                width: 10,
+                height,
+                background: bg,
+                borderRadius: 3,
+                cursor: 'pointer',
+                marginRight: 3,
+              }}
+            />
           )
         })}
       </div>
-      <div style={{marginTop:6, color:'var(--muted)'}}>
-        Heat = yearly citations (darker = more cites)
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          fontSize: '.7rem',
+          marginTop: '4px',
+          color: 'var(--muted)',
+        }}
+      >
+        {groupedByYear.map(([y]) => (
+          <span key={y} style={{ flex: 1, textAlign: 'center' }}>
+            {y}
+          </span>
+        ))}
       </div>
-      <div className="heat-legend" style={{marginTop:6}}>
-        <span className="heat-swatch"></span>
-        <span className="heat-swatch mid"></span>
-        <span className="heat-swatch max"></span>
+      <div className="heat-legend">
+        <span
+          className="heat-swatch"
+          style={{ background: 'rgba(76,154,255,.15)' }}
+        ></span>
+        <span
+          className="heat-swatch"
+          style={{ background: 'rgba(76,154,255,.45)' }}
+        ></span>
+        <span
+          className="heat-swatch"
+          style={{ background: 'rgba(76,154,255,.9)' }}
+        ></span>
         <span>low → high citations</span>
       </div>
       <div style={{display:'flex',gap:20,alignItems:'flex-start'}}>
