@@ -4,101 +4,10 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    <title>Bibliography</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scholar's Website</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header class="hero-section">
-    <div class="content">
-        <h1>Welcome to Ian Buchanan's Vault</h1>
-        <p>Exploring the works of Deleuze, Guattari, Jameson and riding bicycles</p>
-    </div>
-  </header>
-
-  <nav class="main-nav">
-      <ul>
-          <li><a href="#books">Books</a></li>
-          <li><a href="#articles">Articles</a></li>
-          <li><a href="#multimedia">Multimedia</a></li>
-          <li><a href="#about">About</a></li>
-      </ul>
-  </nav>
-
-  <section id="videos" class="videos-section">
-    <h2>Latest YouTube Videos</h2>
-    <div class="video-gallery">
-        <div class="video">
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/6P4DT1cJkCE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
-        <div class="video">
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/k26moL2SUnw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
-        <div class="video">
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/i68JYTl8eLc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
-        <div class="video">
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/iU_CMh4wRbo" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
-    </div>
-</section>
-
-  <section id="books" class="books-section">
-      <h2>Books</h2>
-      <div class="carousel">
-          <button class="prev" onclick="moveCarousel(-1)">&#10094;</button>
-          <div class="carousel-inner">
-              <div class="image-gallery">
-                  <img src="images/Assemblage Theory and Method.jpg" alt="Assemblage Theory and Method" class="book-image">
-                  <img src="images/A Dictionary of Critical Theory.jpg" alt="A Dictionary of Critical Theory" class="book-image">
-                  <img src="images/Deleuze and Literature.jpg" alt="Deleuze and Literature" class="book-image">
-                  <img src="images/EPZ Deleuze and Guattari's 'Anti-Oedipus'.jpg" alt="Anti-Oedipus" class="book-image">
-                  <img src="images/Deleuze and the Schizoanalysis of Visual.jpg" alt="Schizoanalysis of Visual" class="book-image">
-                  <img src="images/Deleuze and the Schizoanalysis of Cinema.jpg" alt="Schizoanalysis of Cinema" class="book-image">
-                  <img src="images/Deleuzism.jpg" alt="Deleuzism" class="book-image">
-                  <img src="images/On Jameson.jpg" alt="On Jameson" class="book-image">
-                  <img src="images/Michel de Certeau.jpg" alt="Michel de Certeau" class="book-image">
-                  <img src="images/Deleuze and Space.jpg" alt="Deleuze and Space" class="book-image">
-                  <img src="images/The Incomplete Project of Schizoanalysis.jpg" alt="Incomplete Project of Schizoanalysis" class="book-image">
-              </div>
-          </div>
-          <button class="next" onclick="moveCarousel(1)">&#10095;</button>
-      </div>
-  </section>
-
-  <footer class="site-footer">
-      <p>&copy; 2024 Ian Buchanan. All rights reserved.</p>
-  </footer>
-
-  <script>
-      let currentIndex = 0;
-
-      function moveCarousel(direction) {
-          const gallery = document.querySelector('.image-gallery');
-          const items = gallery.querySelectorAll('.book-image');
-          const totalItems = items.length;
-          currentIndex += direction;
-
-          if (currentIndex >= totalItems) {
-              currentIndex = 0;
-          } else if (currentIndex < 0) {
-              currentIndex = totalItems - 1;
-          }
-
-          const newTransform = -currentIndex * items[0].clientWidth;
-          gallery.style.transform = `translateX(${newTransform}px)`;
-      }
-  </script>
-</body>
 </html>
