@@ -27,7 +27,7 @@ export function missingQueues(rows) {
   const dups = []
   rows.forEach((r) => {
     const hits = fuse.search(r.Title).map(h => h.item).filter(it =>
-      it !== r && it.Year === r.Year && it.Type === r.Type)
+      it !== r && it.Year === r.Year && it.type === r.type)
     if (hits.length) dups.push({ ref: r, candidates: hits })
   })
 
