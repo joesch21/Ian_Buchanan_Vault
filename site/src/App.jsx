@@ -7,7 +7,6 @@ import { groupByYear, yearsRange } from './lib/group.js'
 import { typeColors as TYPE_COLORS } from './lib/colors.js'
 import { generateWiki } from './lib/wiki.js'
 import { TAGS } from './lib/tags.js'
-import ConceptMap from './components/ConceptMap.jsx'
 
 function App() {
   const [entries, setEntries] = useState([])
@@ -193,10 +192,6 @@ function App() {
           ))}
         </div>
         <div style={{width:'300px',flexShrink:0,display:'flex',flexDirection:'column',gap:'1rem'}}>
-          <div className="card">
-            <strong>Concept Map</strong>
-            <ConceptMap data={filtered} />
-          </div>
           <div className="card">
             <strong>Tags</strong>
             <div style={{marginTop:6, display:'flex', flexWrap:'wrap', gap:6}}>
