@@ -4,6 +4,28 @@ body {
   padding: 1rem;
   background: #f5f5f5;
   color: #333;
+  --muted: #666;
+}
+
+.header h1 { font-size: 1.6rem; }
+.card h3 { font-size: 1.05rem; }
+.container { max-width: 1200px; margin: 0 auto; }
+
+.badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  background: #eee;
+  text-decoration: none;
+}
+
+.button {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .controls {
@@ -65,5 +87,5 @@ body {
 }
 
 .notes {
-  margin-top: 2rem;
+  margin-top: 0;
 }
