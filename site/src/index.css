@@ -41,28 +41,6 @@ body {
   padding: 0.25rem 0.5rem;
 }
 
-.timeline {
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  height: 60px;
-  margin-bottom: 1rem;
-}
-
-.timeline .bar {
-  width: 20px;
-  background: #888;
-  position: relative;
-  cursor: pointer;
-}
-
-.timeline .bar .year-label {
-  position: absolute;
-  bottom: -1.2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.7rem;
-}
 
 .card {
   border: 1px solid #ddd;
@@ -91,23 +69,15 @@ body {
 }
 
 .heat-legend {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  font-size:.75rem;
   color: var(--muted);
+  margin-top:4px;
 }
-
 .heat-swatch {
-  width: 18px;
-  height: 10px;
-  border-radius: 3px;
-  background: rgba(76,154,255,.15);
-}
-
-.heat-swatch.mid {
-  background: rgba(76,154,255,.45);
-}
-
-.heat-swatch.max {
-  background: rgba(76,154,255,.9);
+  width:16px;
+  height:8px;
+  border-radius:2px;
 }
