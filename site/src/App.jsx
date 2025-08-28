@@ -176,7 +176,12 @@ function App() {
                     <span
                       key={tag}
                       className="badge"
-                      style={{ background: '#232734', color: 'var(--muted)' }}
+                      style={{ cursor: 'pointer', background: '#232734', color: 'var(--muted)' }}
+                      onClick={() =>
+                        setActiveTags((prev) =>
+                          prev.includes(tag) ? prev : [...prev, tag],
+                        )
+                      }
                     >
                       {tag}
                     </span>
@@ -193,27 +198,43 @@ function App() {
         </div>
         <div style={{width:'300px',flexShrink:0,display:'flex',flexDirection:'column',gap:'1rem'}}>
           <div className="card">
-            <strong>Tags</strong>
+            <strong>Concept Tags</strong>
             <div style={{marginTop:6, display:'flex', flexWrap:'wrap', gap:6}}>
-              {TAGS.map((tag) => (
-                <button
-                  key={tag}
-                  className="badge"
-                  style={{
-                    cursor: 'pointer',
-                    background: activeTags.includes(tag) ? 'var(--accent)' : '#232734',
-                    color: activeTags.includes(tag) ? '#08121e' : 'var(--muted)',
-                  }}
-                  onClick={() =>
-                    setActiveTags((t) =>
-                      t.includes(tag) ? t.filter((x) => x !== tag) : [...t, tag],
-                    )
-                  }
-                >
-                  {tag}
-                </button>
-              ))}
+              {TAGS.map((tag) => {
+                const active = activeTags.includes(tag)
+                return (
+                  <button
+                    key={tag}
+                    className="badge"
+                    onClick={() =>
+                      setActiveTags((prev) =>
+                        prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+                      )
+                    }
+                    style={{
+                      cursor: 'pointer',
+                      background: active ? 'var(--accent)' : '#232734',
+                      color: active ? '#08121e' : 'var(--muted)',
+                    }}
+                    title={active ? `Remove ${tag}` : `Add ${tag}`}
+                  >
+                    {tag}
+                  </button>
+                )
+              })}
             </div>
+            {activeTags.length > 0 && (
+              <div style={{marginTop:8, color:'var(--muted)', fontSize:'.85rem'}}>
+                Active: {activeTags.join(', ')} ·
+                <button
+                  className="badge"
+                  style={{marginLeft:6, cursor:'pointer'}}
+                  onClick={() => setActiveTags([])}
+                >
+                  Clear
+                </button>
+              </div>
+            )}
           </div>
           <div className="card">
             <strong>Reader Notes</strong>
