@@ -216,19 +216,24 @@ function App() {
             </div>
           </div>
           <div className="card">
+            <strong>Reader Notes</strong>
+            <div style={{marginTop:8}} dangerouslySetInnerHTML={{ __html: notes }} />
+          </div>
+          <div className="card">
             <strong>Wikipedia Block</strong>
             <textarea
-              style={{width:'100%',height:'200px',marginTop:8,fontFamily:'monospace'}}
+              style={{width:'100%',height:'220px',marginTop:8,fontFamily:'monospace'}}
               readOnly
               value={generateWiki(filtered)}
             />
-            <button className="button" style={{marginTop:8}}
+            <button
+              className="button"
+              style={{marginTop:8}}
               onClick={() => navigator.clipboard.writeText(generateWiki(filtered))}
             >
               Copy to clipboard
             </button>
           </div>
-          <div className="card notes" dangerouslySetInnerHTML={{ __html: notes }} />
         </div>
       </div>
     </div>
