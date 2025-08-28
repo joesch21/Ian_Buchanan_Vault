@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import './index.css'
+import Papa from 'papaparse'
+import bibliographyCsv from './data/bibliography.csv?url'
 import { loadBibliography } from './lib/csv.js'
 import { loadNotes } from './lib/md.js'
 import { createSearch } from './lib/search.js'
@@ -7,9 +9,59 @@ import { groupByYear, yearsRange } from './lib/group.js'
 import { typeColors as TYPE_COLORS } from './lib/colors.js'
 import { generateWiki } from './lib/wiki.js'
 import { TAGS } from './lib/tags.js'
+import { parseSimpleCSV, mergeExternal } from './lib/merge.js'
+
+function ImportCard({ master }) {
+  const [raw, setRaw] = useState('')
+  const [report, setReport] = useState(null)
+
+  const runMerge = () => {
+    const ext = parseSimpleCSV(raw)
+    const { updated, additions } = mergeExternal(master, ext)
+    setReport({ additions, count: ext.length })
+    const merged = [...updated, ...additions]
+    const headers = Object.keys(merged[0] || {})
+    const csv = [
+      headers.join(','),
+      ...merged.map((r) =>
+        headers
+          .map((h) => `"${(r[h] ?? '').toString().replace(/"/g, '""')}"`)
+          .join(','),
+      ),
+    ].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = 'bibliography_merged.csv'
+    a.click()
+  }
+
+  return (
+    <div className="card">
+      <strong>Import & Merge (Scholar/PhilPapers)</strong>
+      <p className="small-muted">
+        Paste a simple CSV: <code>title,citations,url,year</code>
+      </p>
+      <textarea
+        style={{ width: '100%', height: '120px', fontFamily: 'monospace' }}
+        value={raw}
+        onChange={(e) => setRaw(e.target.value)}
+      />
+      <button className="button" style={{ marginTop: 8 }} onClick={runMerge}>
+        Run merge
+      </button>
+      {report && (
+        <p className="small-muted" style={{ marginTop: 6 }}>
+          Processed {report.count} entries. Additions: {report.additions.length}
+        </p>
+      )}
+    </div>
+  )
+}
 
 function App() {
   const [entries, setEntries] = useState([])
+  const [masterRows, setMasterRows] = useState([])
   const [notes, setNotes] = useState('')
   const [typeFilter, setTypeFilter] = useState('All')
   const [bounds, setBounds] = useState([0, 0])
@@ -20,6 +72,15 @@ function App() {
   const [topN, setTopN] = useState(10)
 
   useEffect(() => {
+    fetch(bibliographyCsv)
+      .then((r) => r.text())
+      .then((t) => {
+        const { data } = Papa.parse(t, {
+          header: true,
+          skipEmptyLines: true,
+        })
+        setMasterRows(data)
+      })
     loadBibliography().then((data) => {
       setEntries(data)
       const yrs = yearsRange(data)
@@ -244,6 +305,7 @@ function App() {
           ))}
         </div>
         <div style={{width:'300px',flexShrink:0,display:'flex',flexDirection:'column',gap:'1rem'}}>
+          <ImportCard master={masterRows} />
           <div className="card">
             <strong>Concept Tags</strong>
             <div style={{marginTop:6, display:'flex', flexWrap:'wrap', gap:6}}>
