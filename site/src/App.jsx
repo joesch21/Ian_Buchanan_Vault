@@ -72,8 +72,9 @@ function App() {
 
   return (
     <div className="app container">
-      <div className="header">
+      <div className="header" style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
         <h1>Bibliography</h1>
+        <a className="button" href="/audit">Audit</a>
       </div>
       <div className="controls">
         <input
