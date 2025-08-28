@@ -6,24 +6,33 @@ export async function loadBibliography() {
   const { data } = Papa.parse(text.trim(), { header: true })
   return data
     .filter((r) => r.Year)
-    .map((r) => ({
-      year: Number(r.Year),
-      title: r.Title,
-      type: r.Type,
-      collaborators: r['Co-authors/Editors']
-        ? r['Co-authors/Editors']
-            .split(',')
-            .map((s) => s.trim())
-            .filter(Boolean)
-        : [],
-      venue: r.Publication,
-      isbn: r.ISBN,
-      PublisherURL: r.PublisherURL,
-      GoogleBooksURL: r.GoogleBooksURL,
-      PhilPapersURL: r.PhilPapersURL,
-      doi: r.DOI,
-      tags: r.Tags
-        ? r.Tags.split(';').map((s) => s.trim()).filter(Boolean)
-        : [],
-    }))
+    .map((r) => {
+      const year = Number(r.Year)
+      const type = r.Type?.trim()
+      const collaborators = (r['Co-authors/Editors'] || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+      const tags = (r.Tags || '')
+        .split(';')
+        .map((s) => s.trim())
+        .filter(Boolean)
+      const citations = Number(r.Citations || 0)
+      return {
+        id: `${year}-${r.Title}`.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        year,
+        title: r.Title?.trim(),
+        type,
+        collaborators,
+        venue: r.Publication?.trim(),
+        isbn: (r.ISBN || '').trim(),
+        PublisherURL: r.PublisherURL,
+        GoogleBooksURL: r.GoogleBooksURL,
+        PhilPapersURL: r.PhilPapersURL,
+        doi: r.DOI,
+        tags,
+        citations,
+        ScholarURL: (r.ScholarURL || '').trim(),
+      }
+    })
 }

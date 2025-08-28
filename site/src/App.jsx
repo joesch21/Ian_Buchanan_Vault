@@ -17,6 +17,8 @@ function App() {
   const [yearRange, setYearRange] = useState([0, 0])
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTags, setActiveTags] = useState([])
+  const [heatOn, setHeatOn] = useState(true)
+  const [topN, setTopN] = useState(10)
 
   useEffect(() => {
     loadBibliography().then((data) => {
@@ -43,12 +45,27 @@ function App() {
     return matches.filter((m) => filtered.includes(m))
   }, [searchTerm, fuse, filtered])
 
+  const displayList = useMemo(() => {
+    let arr = results
+    if (heatOn) {
+      arr = [...arr].sort((a, b) => (b.citations || 0) - (a.citations || 0))
+      if (topN > 0) arr = arr.slice(0, topN)
+    }
+    return arr
+  }, [results, heatOn, topN])
+
   const counts = useMemo(() => groupByYear(entries), [entries])
   const years = useMemo(
     () => Object.keys(counts).map((y) => parseInt(y)).sort((a, b) => a - b),
     [counts],
   )
+  const citationsByYear = useMemo(() => {
+    const map = new Map()
+    for (const d of entries) map.set(d.year, (map.get(d.year) || 0) + (d.citations || 0))
+    return map
+  }, [entries])
   const maxCount = Math.max(0, ...Object.values(counts))
+  const maxCite = Math.max(1, ...Array.from(citationsByYear.values()))
   const [minYear, maxYear] = bounds
 
   return (
@@ -69,6 +86,15 @@ function App() {
           <option value="Edited volume">Edited volume</option>
           <option value="Article">Article</option>
         </select>
+        <label style={{display:'flex',alignItems:'center',gap:6}}>
+          <input type="checkbox" checked={heatOn} onChange={(e)=>setHeatOn(e.target.checked)} />
+          Heat view
+        </label>
+        <label style={{display:'flex',alignItems:'center',gap:6}}>
+          Top N
+          <input className="input" style={{width:70}} type="number" min={3} max={50}
+            value={topN} onChange={(e)=>setTopN(Number(e.target.value||10))}/>
+        </label>
         <button className="button" onClick={() => setYearRange([minYear, maxYear])}>
           Reset years
         </button>
@@ -101,22 +127,34 @@ function App() {
         {years.map((y) => {
           const count = counts[y]
           const height = maxCount ? (count / maxCount) * 50 : 0
+          const yrCites = citationsByYear.get(y) || 0
+          const alpha = Math.min(0.9, (yrCites / maxCite) ** 0.5)
+          const bg = `rgba(76,154,255,${alpha})`
           return (
             <div
               key={y}
               className="bar"
-              style={{ height: `${height}px` }}
+              style={{ height: `${height}px`, background: bg }}
               onClick={() => setYearRange([y, y])}
-              title={`${y} (${count})`}
+              title={`${y}: ${count} works • ${yrCites} cites`}
             >
               <span className="year-label">{y}</span>
             </div>
           )
         })}
       </div>
+      <div style={{marginTop:6, color:'var(--muted)'}}>
+        Heat = yearly citations (darker = more cites)
+      </div>
+      <div className="heat-legend" style={{marginTop:6}}>
+        <span className="heat-swatch"></span>
+        <span className="heat-swatch mid"></span>
+        <span className="heat-swatch max"></span>
+        <span>low → high citations</span>
+      </div>
       <div style={{display:'flex',gap:20,alignItems:'flex-start'}}>
         <div style={{flex:1}}>
-          {results.map((item) => (
+          {displayList.map((item) => (
             <div className="card" key={item.title + item.year}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',gap:10}}>
                 <h3 style={{margin:'0 0 .25rem 0'}}>{item.title}</h3>
@@ -125,6 +163,10 @@ function App() {
                 </span>
               </div>
               <div style={{color:'var(--muted)'}}>{item.year} — {item.venue}</div>
+              <div style={{marginTop:6, display:'flex', gap:8, alignItems:'center', flexWrap:'wrap'}}>
+                <span className="badge" title="Google Scholar citations">★ {item.citations || 0}</span>
+                {item.ScholarURL && <a className="badge" href={item.ScholarURL} target="_blank" rel="noreferrer">Scholar</a>}
+              </div>
               {item.collaborators.length > 0 && (
                 <div style={{marginTop:4,fontSize:'.9rem'}}>With: {item.collaborators.join(', ')}</div>
               )}

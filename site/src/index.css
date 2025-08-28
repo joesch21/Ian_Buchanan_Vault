@@ -89,3 +89,25 @@ body {
 .notes {
   margin-top: 0;
 }
+
+.heat-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.heat-swatch {
+  width: 18px;
+  height: 10px;
+  border-radius: 3px;
+  background: rgba(76,154,255,.15);
+}
+
+.heat-swatch.mid {
+  background: rgba(76,154,255,.45);
+}
+
+.heat-swatch.max {
+  background: rgba(76,154,255,.9);
+}
