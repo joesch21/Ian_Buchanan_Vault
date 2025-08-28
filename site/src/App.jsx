@@ -2,9 +2,11 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { generateWiki } from './lib/wiki.js'
 
 function App() {
   const [count, setCount] = useState(0)
+  const filtered = []
 
   return (
     <>
@@ -28,6 +30,23 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+      <aside className="col-4">
+        <div className="card">
+          <strong>Wikipedia Block</strong>
+          <textarea
+            style={{ width: '100%', height: '200px', marginTop: 8, fontFamily: 'monospace' }}
+            readOnly
+            value={generateWiki(filtered)}
+          />
+          <button
+            className="button"
+            style={{ marginTop: 8 }}
+            onClick={() => navigator.clipboard.writeText(generateWiki(filtered))}
+          >
+            Copy to clipboard
+          </button>
+        </div>
+      </aside>
     </>
   )
 }
