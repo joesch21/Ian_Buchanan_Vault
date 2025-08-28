@@ -22,5 +22,8 @@ export async function loadBibliography() {
       GoogleBooksURL: r.GoogleBooksURL,
       PhilPapersURL: r.PhilPapersURL,
       doi: r.DOI,
+      tags: r.Tags
+        ? r.Tags.split(';').map((s) => s.trim()).filter(Boolean)
+        : [],
     }))
 }

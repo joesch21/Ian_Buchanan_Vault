@@ -1,15 +1,15 @@
-Year,Title,Type,Co-authors/Editors,Publication,ISBN,PublisherURL,GoogleBooksURL,PhilPapersURL
-1997,Deleuze and Literature,Edited volume,Claire Colebrook,Edinburgh University Press,9780748612725,,,
-2000,Michel de Certeau,Book,,SAGE Publications,9780761968967,,,
-2000,A Dictionary of Critical Theory,Book,,Oxford University Press,9780195126691,,,
-2000,Deleuzism: A Metacommentary,Book,,Duke University Press,9780822321813,,,
-2004,Deleuze and the Schizoanalysis of Cinema,Edited volume,Patricia Pisters; Adrian Parr,Continuum,9780826479437,,,
-2006,Fredric Jameson: Live Theory,Book,,Continuum,9780826461430,https://www.bloomsbury.com/us/fredric-jameson-9780826461430,,https://philpapers.org/rec/BUCFJL
-2008,Deleuze and Guattari's 'Anti-Oedipus': A Critical Introduction and Guide,Book,,Routledge,9781847064108,,,
-2011,Deleuze and the Schizoanalysis of Cinema,Edited volume,Patricia Pisters,Bloomsbury,9781441173824,,,
-2013,Deleuze and the Schizoanalysis of Visual Culture,Edited volume,Laura Cull,Bloomsbury,9781780936708,,,
-2015,Assemblage and the Everyday,Article,,Deleuze Studies,,,,
-2017,Assemblage, Affect, and Art,Article,,Deleuze Studies,,,,
-2017,The Incomplete Project of Schizoanalysis,Book,,Edinburgh University Press,9780748676122,,,
-2019,On Jameson,Book,,Haymarket Books,9781608469080,,,
-2021,Assemblage Theory and Method,Book,,Bloomsbury,978-1350014680,https://www.bloomsbury.com/9781350014680,https://books.google.com/books?vid=ISBN9781350014680,https://philpapers.org/rec/BUCAAT
+Year,Title,Type,Co-authors/Editors,Publication,ISBN,PublisherURL,GoogleBooksURL,PhilPapersURL,Tags
+1997,Deleuze and Literature,Edited volume,Claire Colebrook,Edinburgh University Press,9780748612725,,,,Affect
+2000,Michel de Certeau,Book,,SAGE Publications,9780761968967,,,,Politics
+2000,A Dictionary of Critical Theory,Book,,Oxford University Press,9780195126691,,,,Pedagogy
+2000,Deleuzism: A Metacommentary,Book,,Duke University Press,9780822321813,,,,Schizoanalysis;Assemblage
+2004,Deleuze and the Schizoanalysis of Cinema,Edited volume,Patricia Pisters; Adrian Parr,Continuum,9780826479437,,,,Schizoanalysis;Affect
+2006,Fredric Jameson: Live Theory,Book,,Continuum,9780826461430,https://www.bloomsbury.com/us/fredric-jameson-9780826461430,,https://philpapers.org/rec/BUCFJL,Politics;Marxism/Jameson;Pedagogy
+2008,"Deleuze and Guattari's ""Anti-Oedipus"": A Critical Introduction and Guide",Book,,Routledge,9781847064108,,,,Schizoanalysis;Pedagogy
+2011,Deleuze and the Schizoanalysis of Cinema,Edited volume,Patricia Pisters,Bloomsbury,9781441173824,,,,Schizoanalysis;Affect
+2013,Deleuze and the Schizoanalysis of Visual Culture,Edited volume,Laura Cull,Bloomsbury,9781780936708,,,,Schizoanalysis;Affect
+2015,Assemblage and the Everyday,Article,,Deleuze Studies,,,,,Assemblage
+2017,"Assemblage, Affect, and Art",Article,,Deleuze Studies,,,,,Assemblage;Affect
+2017,The Incomplete Project of Schizoanalysis,Book,,Edinburgh University Press,9780748676122,,,,Schizoanalysis
+2019,On Jameson,Book,,Haymarket Books,9781608469080,,,,Marxism/Jameson
+2021,Assemblage Theory and Method,Book,,Bloomsbury,978-1350014680,https://www.bloomsbury.com/9781350014680,https://books.google.com/books?vid=ISBN9781350014680,https://philpapers.org/rec/BUCAAT,Assemblage;Pedagogy
