@@ -6,6 +6,7 @@ import { createSearch } from './lib/search.js'
 import { groupByYear, yearsRange } from './lib/group.js'
 import { typeColors as TYPE_COLORS } from './lib/colors.js'
 import { generateWiki } from './lib/wiki.js'
+import { TAGS } from './lib/tags.js'
 
 function App() {
   const [entries, setEntries] = useState([])
@@ -14,6 +15,7 @@ function App() {
   const [bounds, setBounds] = useState([0, 0])
   const [yearRange, setYearRange] = useState([0, 0])
   const [searchTerm, setSearchTerm] = useState('')
+  const [activeTags, setActiveTags] = useState([])
 
   useEffect(() => {
     loadBibliography().then((data) => {
@@ -31,7 +33,8 @@ function App() {
     return entries
       .filter((e) => typeFilter === 'All' || e.type === typeFilter)
       .filter((e) => e.year >= yearRange[0] && e.year <= yearRange[1])
-  }, [entries, typeFilter, yearRange])
+      .filter((e) => activeTags.every((t) => e.tags.includes(t)))
+  }, [entries, typeFilter, yearRange, activeTags])
 
   const results = useMemo(() => {
     if (!searchTerm) return filtered
@@ -125,6 +128,19 @@ function App() {
                 <div style={{marginTop:4,fontSize:'.9rem'}}>With: {item.collaborators.join(', ')}</div>
               )}
               {item.isbn && <div style={{marginTop:4,fontSize:'.9rem',wordBreak:'break-word'}}>ISBN: {item.isbn}</div>}
+              {item.tags.length > 0 && (
+                <div style={{marginTop:8, display:'flex', gap:6, flexWrap:'wrap'}}>
+                  {item.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="badge"
+                      style={{ background: '#232734', color: 'var(--muted)' }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div style={{marginTop:8, display:'flex', gap:8, flexWrap:'wrap'}}>
                 {item.PublisherURL && <a className="badge" href={item.PublisherURL} target="_blank" rel="noreferrer">Publisher</a>}
                 {item.GoogleBooksURL && <a className="badge" href={item.GoogleBooksURL} target="_blank" rel="noreferrer">Google Books</a>}
@@ -134,6 +150,29 @@ function App() {
           ))}
         </div>
         <div style={{width:'300px',flexShrink:0,display:'flex',flexDirection:'column',gap:'1rem'}}>
+          <div className="card">
+            <strong>Tags</strong>
+            <div style={{marginTop:6, display:'flex', flexWrap:'wrap', gap:6}}>
+              {TAGS.map((tag) => (
+                <button
+                  key={tag}
+                  className="badge"
+                  style={{
+                    cursor: 'pointer',
+                    background: activeTags.includes(tag) ? 'var(--accent)' : '#232734',
+                    color: activeTags.includes(tag) ? '#08121e' : 'var(--muted)',
+                  }}
+                  onClick={() =>
+                    setActiveTags((t) =>
+                      t.includes(tag) ? t.filter((x) => x !== tag) : [...t, tag],
+                    )
+                  }
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="card">
             <strong>Wikipedia Block</strong>
             <textarea
