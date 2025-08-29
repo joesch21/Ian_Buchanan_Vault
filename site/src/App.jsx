@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Routes, Route, Link } from 'react-router-dom'
+import Concepts from './pages/Concepts.jsx'
+import ConceptDetail from './pages/ConceptDetail.jsx'
+import Compare from './pages/Compare.jsx'
 import './index.css'
 import Papa from 'papaparse'
 import bibliographyCsv from './data/bibliography.csv?url'
@@ -133,13 +137,9 @@ function App() {
   const maxCite = Math.max(1, ...Array.from(citationsByYear.values()))
   const [minYear, maxYear] = bounds
 
-  return (
+  const home = (
     <div className="app container">
-      <div className="header" style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-        <h1>Bibliography</h1>
-        <a className="button" href="/audit">Audit</a>
-      </div>
-      <div className="controls">
+        <div className="controls">
         <input
           type="text"
           placeholder="Search..."
@@ -379,6 +379,25 @@ function App() {
         </div>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      <header className="header">
+        <h1>Ian Buchanan — Bibliography</h1>
+        <div className="toolbar">
+          <Link className="link-pill" to="/">Home</Link>
+          <Link className="link-pill" to="/concepts">Concepts</Link>
+          <Link className="link-pill" to="/compare">Compare</Link>
+        </div>
+      </header>
+      <Routes>
+        <Route path="/" element={home} />
+        <Route path="/concepts" element={<Concepts data={entries} />} />
+        <Route path="/concept/:slug" element={<ConceptDetail data={entries} />} />
+        <Route path="/compare" element={<Compare />} />
+      </Routes>
+    </>
   )
 }
 
