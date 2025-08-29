@@ -3,8 +3,17 @@ import Fuse from 'fuse.js'
 export function parseSimpleCSV(text) {
   const lines = text.split(/\r?\n/).filter(Boolean)
   return lines.map((line) => {
-    const [title, citations, url, year] = line.split(',').map((s) => s.trim())
-    return { title, citations: Number(citations) || '', url, year: Number(year) || '' }
+    const [title, citations, url, year, doi, philurl] = line
+      .split(',')
+      .map((s) => s.trim())
+    return {
+      title,
+      citations: citations ? Number(citations) : '',
+      url,
+      year: year ? Number(year) : '',
+      doi,
+      philurl,
+    }
   })
 }
 
@@ -17,6 +26,8 @@ export function mergeExternal(masterRows, extRows) {
     if (hit) {
       hit.Citations = ext.citations || hit.Citations
       hit.ScholarURL = ext.url || hit.ScholarURL
+      hit.DOI = ext.doi || hit.DOI
+      hit.URL_PhilPapers = ext.philurl || hit.URL_PhilPapers
       if (ext.year && /^\d{4}$/.test(String(ext.year))) hit.Year = hit.Year || ext.year
     } else {
       additions.push({
@@ -27,10 +38,10 @@ export function mergeExternal(masterRows, extRows) {
         Publication: '',
         ISBN: '',
         Tags: '',
-        DOI: '',
+        DOI: ext.doi || '',
         URL_Publisher: '',
         URL_GoogleBooks: '',
-        URL_PhilPapers: '',
+        URL_PhilPapers: ext.philurl || '',
         Notes: 'NEEDS TRIAGE (imported)',
         Citations: ext.citations || '',
         ScholarURL: ext.url || '',

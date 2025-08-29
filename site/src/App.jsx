@@ -38,9 +38,11 @@ function ImportCard({ master }) {
 
   return (
     <div className="card">
-      <strong>Import & Merge (Scholar/PhilPapers)</strong>
+      <strong>Import & Merge (Scholar/PhilPapers/Wiki)</strong>
       <p className="small-muted">
-        Paste a simple CSV: <code>title,citations,url,year</code>
+        Paste a CSV: <code>title,citations,url,year,doi,philurl</code>. Scholar
+        gives first 4; PhilPapers adds DOIs/URLs; Wikipedia list at least has
+        title+year.
       </p>
       <textarea
         style={{ width: '100%', height: '120px', fontFamily: 'monospace' }}
@@ -52,7 +54,7 @@ function ImportCard({ master }) {
       </button>
       {report && (
         <p className="small-muted" style={{ marginTop: 6 }}>
-          Processed {report.count} entries. Additions: {report.additions.length}
+          Processed {report.count} rows · Additions: {report.additions.length}
         </p>
       )}
     </div>
