@@ -1,0 +1,6 @@
+{
+  "buchanan": { "Assemblage": "Assemblage", "Affect": "Affect", "Schizoanalysis": "Schizoanalysis", "Politics": "Politics", "Pedagogy": "Pedagogy", "Marxism/Jameson": "Marxism/Jameson" },
+  "massumi":  { "Affect": "Affect", "Perception": "Affect", "Semblance": "Affect", "Politics": "Politics", "Philosophy of Movement": "Assemblage" },
+  "colebrook":{ "Feminism": "Politics", "Climate": "Politics", "Deleuze": "Schizoanalysis", "Affect": "Affect" },
+  "delanda":  { "Assemblage": "Assemblage", "Materialism": "Assemblage", "Systems": "Assemblage", "Science/Philosophy": "Politics" }
+}
