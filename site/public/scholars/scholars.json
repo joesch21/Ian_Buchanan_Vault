@@ -1,14 +1,15 @@
 {
-  "version": "1.1",
+  "version": "1.2",
   "groups": [
     {
       "id": "core",
       "label": "Core Deleuzian scholars",
       "members": [
-        { "id": "buchanan-ian",   "name": "Ian Buchanan",        "orcid": "0000-0003-4864-6495" },
-        { "id": "colebrook-claire","name": "Claire Colebrook",   "orcid": "" },
-        { "id": "delanda-manuel", "name": "Manuel DeLanda",      "orcid": "" },
-        { "id": "massumi-brian",  "name": "Brian Massumi",       "orcid": "" },
+        { "id": "buchanan-ian",    "name": "Ian Buchanan",               "orcid": "0000-0003-4864-6495" },
+        { "id": "colebrook-claire","name": "Claire Colebrook",           "orcid": "0000-0002-3487-0974" },
+        { "id": "massumi-brian",   "name": "Brian Massumi",              "orcid": "0000-0001-9559-7767" },
+
+        { "id": "delanda-manuel",  "name": "Manuel DeLanda",             "orcid": "" },
         { "id": "braidotti-rosi", "name": "Rosi Braidotti",      "orcid": "" },
         { "id": "lambert-gregg",  "name": "Gregg Lambert",       "orcid": "" },
         { "id": "parr-adrian",    "name": "Adrian Parr",         "orcid": "" },

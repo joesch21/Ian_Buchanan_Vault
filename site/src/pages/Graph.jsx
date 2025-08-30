@@ -131,15 +131,13 @@ export default function Graph() {
   function applySelectedScholars() {
     const all = scholarGroups.flatMap(g => g.members);
     const chosen = all.filter(m => selScholars.has(m.id) && m.orcid);
-    const existing = orcids.split(',').map(s=>s.trim()).filter(Boolean);
-    const merged = Array.from(new Set([...existing, ...chosen.map(m => m.orcid)]));
+    const merged = Array.from(new Set(chosen.map(m => m.orcid)));
     setOrcids(merged.join(', '));
   }
 
   function clearOrcids() {
     setOrcids('');
     setSelScholars(new Set());
-    localStorage.removeItem('selScholars');
   }
 
   function addCustomConcept() {
@@ -317,9 +315,9 @@ export default function Graph() {
 
   function useExamples() {
     const examples = [
-      '0000-0003-4864-6495', // Buchanan
-      '0000-0001-2345-6789', // placeholder — replace with a real ORCID
-      '0000-0002-9876-5432'  // placeholder — replace with a real ORCID
+      '0000-0003-4864-6495', // Ian Buchanan
+      '0000-0002-3487-0974', // Claire Colebrook
+      '0000-0001-9559-7767'  // Brian Massumi
     ].join(', ');
     setOrcids(examples);
     fetchAll();
