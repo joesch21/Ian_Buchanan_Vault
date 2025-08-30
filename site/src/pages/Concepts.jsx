@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 export default function Concepts() {
   const [concepts, setConcepts] = useState([]);
   const [saving, setSaving] = useState(false);
-  const isProd = import.meta.env.PROD;
 
   useEffect(() => {
     fetch('/api/concepts').then(r => r.json()).then(setConcepts).catch(()=>setConcepts([]));
@@ -15,16 +14,16 @@ export default function Concepts() {
   }
 
   async function save() {
-    if (isProd) { alert('Saving disabled on production build.'); return; }
     setSaving(true);
-    const resp = await fetch('/api/concepts', {
+    const resp = await fetch('/api/save-config', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(concepts)
+      body: JSON.stringify({ kind:'concepts', payload: concepts, message:'Update concepts via Concepts UI' })
     });
     setSaving(false);
-    if (resp.ok) alert('Saved (dev). In production, use GitHub/Blob for persistence.');
-    else alert('Save failed.');
+    const j = await resp.json();
+    if (j.ok) alert(`Saved (${j.mode}). ${j.url ? 'Open: '+j.url : ''}`);
+    else alert('Save failed: ' + j.error);
   }
 
   return (
@@ -65,11 +64,8 @@ export default function Concepts() {
 
       <div style={{display:'flex', gap:8, marginTop:12}}>
         <button className="btn" onClick={addConcept}>Add Concept</button>
-        <button className="btn primary" onClick={save} disabled={saving}>{saving?'Saving…':'Save (dev only)'}</button>
+        <button className="btn primary" onClick={save} disabled={saving}>{saving?'Saving…':'Save'}</button>
       </div>
-      <p style={{opacity:.7, marginTop:8}}>
-        Writes are disabled on production (Vercel read-only FS). For prod persistence, wire GitHub API or Vercel Blob/KV.
-      </p>
     </div>
   );
 
