@@ -1,16 +1,18 @@
-import { Routes, Route, Link } from 'react-router-dom'
-import Bibliography from './pages/Bibliography.jsx'
-import Compare from './pages/Compare.jsx'
+import { Routes, Route, NavLink } from 'react-router-dom';
+import Home from './pages/Home.jsx';
+import Bibliography from './pages/Bibliography.jsx';
+import Compare from './pages/Compare.jsx';
+import About from './pages/About.jsx';
 
 export default function App() {
   return (
-    <div style={{ fontFamily: 'sans-serif', padding: '2rem' }}>
+    <div className="container">
       <h1>Ian Buchanan Vault</h1>
-      <nav>
-        <Link to="/">Home</Link> |{' '}
-        <Link to="/bibliography">Bibliography</Link> |{' '}
-        <Link to="/compare">Compare</Link> |{' '}
-        <Link to="/about">About</Link>
+      <nav style={{ marginBottom: '1rem' }}>
+        <NavLink to="/" end className={({isActive}) => isActive ? 'active' : ''}>Home</NavLink>{' | '}
+        <NavLink to="/bibliography" className={({isActive}) => isActive ? 'active' : ''}>Bibliography</NavLink>{' | '}
+        <NavLink to="/compare" className={({isActive}) => isActive ? 'active' : ''}>Compare</NavLink>{' | '}
+        <NavLink to="/about" className={({isActive}) => isActive ? 'active' : ''}>About</NavLink>
       </nav>
 
       <Routes>
@@ -21,17 +23,6 @@ export default function App() {
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
-  )
+  );
 }
-
-function Home() {
-  return <h2>Home Page</h2>
-}
-
-function About() {
-  return <h2>About this project</h2>
-}
-
-function NotFound() {
-  return <h2>404 — Page Not Found</h2>
-}
+function NotFound(){ return <h2>404 — Page Not Found</h2>; }

@@ -1,0 +1,13 @@
+:root { --maxw: 920px; }
+html, body { margin: 0; padding: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+.container { max-width: var(--maxw); margin: 0 auto; padding: 24px; }
+nav a { margin-right: 12px; }
+nav a.active { text-decoration: underline; font-weight: 600; }
+.btn { display:inline-block; padding:8px 12px; border:1px solid #ddd; border-radius:6px; text-decoration:none; }
+.btn.primary { border-color:#333; }
+.badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid #e0e0e0; }
+.badge.ok { background:#eaffea; border-color:#b6ecb6; }
+.badge.warn { background:#fff6e6; border-color:#ffd599; }
+.table { width:100%; border-collapse:collapse; }
+.table th, .table td { padding:8px; border-bottom:1px solid #eee; text-align:left; }
+@media (max-width: 640px){ .container { padding: 16px; } }
