@@ -125,7 +125,11 @@ export default function Graph() {
   function applySelectedScholars() {
     const allMembers = scholarGroups.flatMap(g => g.members);
     const chosen = allMembers.filter(m => selScholars.has(m.orcid)).map(m => m.orcid);
-    setOrcids(chosen.join(', '));
+
+    // merge with what's already typed, remove duplicates
+    const existing = orcids.split(',').map(s=>s.trim()).filter(Boolean);
+    const merged = Array.from(new Set([...existing, ...chosen]));
+    setOrcids(merged.join(', '));
   }
 
   const filteredRows = useMemo(() => {
