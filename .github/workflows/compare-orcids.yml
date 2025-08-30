@@ -1,0 +1,28 @@
+name: Compare Authors (multi-ORCID)
+
+on:
+  workflow_dispatch:
+    inputs:
+      orcids:
+        description: "Comma-separated ORCIDs (e.g., 0000-0003-4864-6495,0000-0001-2345-6789)"
+        required: true
+        type: string
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests
+      - name: Fetch & compare
+        run: python scripts/compare_orcids.py "${{ inputs.orcids }}"
+      - name: Commit comparison artifacts
+        run: |
+          git config user.name "compare-bot"
+          git config user.email "actions@github.com"
+          git add site/public/data/*.csv site/public/data/*.md site/public/data/compare/* data/master.csv || true
+          git commit -m "chore(compare): ORCIDs ${{ inputs.orcids }}" || echo "No changes"
+          git push

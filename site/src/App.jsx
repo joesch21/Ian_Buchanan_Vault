@@ -1,5 +1,6 @@
 import { Routes, Route, Link } from 'react-router-dom'
 import Bibliography from './pages/Bibliography.jsx'
+import Compare from './pages/Compare.jsx'
 
 export default function App() {
   return (
@@ -8,12 +9,14 @@ export default function App() {
       <nav>
         <Link to="/">Home</Link> |{' '}
         <Link to="/bibliography">Bibliography</Link> |{' '}
+        <Link to="/compare">Compare</Link> |{' '}
         <Link to="/about">About</Link>
       </nav>
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/bibliography" element={<Bibliography />} />
+        <Route path="/compare" element={<Compare />} />
         <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
