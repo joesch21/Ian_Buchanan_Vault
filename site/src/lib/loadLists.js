@@ -1,15 +1,11 @@
 export async function loadScholars() {
-  const j = await fetch('/scholars/scholars.json').then(r => r.json());
-  // ensure structure: groups[].members[] with {id,name,orcid}
-  return (j.groups || []).map(g => ({
-    id: g.id,
-    label: g.label,
-    members: (g.members || []).map(m => ({
-      id: m.id,
-      name: m.name,
-      orcid: (m.orcid || '').trim()
-    }))
+  const list = await fetch('/api/scholars').then(r => r.json()).catch(() => []);
+  const members = (Array.isArray(list) ? list : []).map((s, i) => ({
+    id: (s.name || `scholar-${i}`).toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    name: s.name,
+    orcid: (s.orcid || '').trim()
   }));
+  return [{ id: 'all', label: 'Scholars', members }];
 }
 
 export async function loadConcepts() {

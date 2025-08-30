@@ -224,12 +224,12 @@ export default function Graph() {
   const [yearMax, setYearMax] = useState('');
   const [includeGlossary, setIncludeGlossary] = useState(true);
 
-  // Scholar presets (loaded from /data/scholars.json)
+  // Scholar presets (loaded from API)
   const [allScholars, setAllScholars] = useState([]);
   const [chosenScholars, setChosenScholars] = useState([]); // array of orcid strings
 
   useEffect(() => {
-    fetch('/data/scholars.json')
+    fetch('/api/scholars')
       .then(r => r.ok ? r.json() : [])
       .then(list => {
         // hide entries without a real ORCID
