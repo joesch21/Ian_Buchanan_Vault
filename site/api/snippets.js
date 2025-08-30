@@ -1,126 +1,102 @@
 /* eslint-env node */
-import { promises as fs } from 'fs';
+import fs from 'fs';
 import path from 'path';
 import process from 'node:process';
 
-const conceptsPath = path.join(process.cwd(), 'public', 'data', 'concepts.json');
-const scholarsPath = path.join(process.cwd(), 'public', 'data', 'scholars.json');
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    res.status(405).json({ ok: false, error: 'POST required' });
+    return;
+  }
 
-async function loadConceptTerms(term) {
   try {
-    const txt = await fs.readFile(conceptsPath, 'utf8');
-    const data = JSON.parse(txt);
-    const c = data.find(x => x.term.toLowerCase() === term.toLowerCase());
-    if (c) return [c.term, ...(c.aliases || [])];
-  } catch { /* ignore */ }
-  return [term];
-}
+    const { concept, orcids = [], yearMin, yearMax, aliases = [] } = await readJson(req);
+    if (!concept || !orcids.length) {
+      res.status(400).json({ ok: false, error: 'concept and orcids[] required' });
+      return;
+    }
 
-async function loadScholarMap() {
-  try {
-    const txt = await fs.readFile(scholarsPath, 'utf8');
-    const arr = JSON.parse(txt);
-    const m = new Map();
-    arr.forEach(s => m.set(s.orcid, s.name));
-    return m;
-  } catch {
-    return new Map();
+    const terms = new Set([concept.toLowerCase(), ...aliases.map(a => a.toLowerCase())]);
+
+    const hits = [];
+    for (const id of orcids) {
+      const csvPath = path.join(process.cwd(), 'site', 'public', 'data', `${id}.csv`);
+      if (!fs.existsSync(csvPath)) continue;
+      const rows = parseCSV(fs.readFileSync(csvPath, 'utf8'));
+      for (const r of rows) {
+        const y = Number(r.year);
+        if (Number.isFinite(y)) {
+          if (Number.isFinite(Number(yearMin)) && y < Number(yearMin)) continue;
+          if (Number.isFinite(Number(yearMax)) && y > Number(yearMax)) continue;
+        }
+        const fields = [
+          safe(r.title), safe(r.abstract), safe(r.journal_or_publisher)
+        ].filter(Boolean);
+        const joined = fields.join(' \n').toLowerCase();
+        const match = [...terms].find(t => t && joined.includes(t));
+        if (match) {
+          hits.push({
+            orcid: id,
+            author: r.author_name || id,
+            work_title: r.title || '(untitled)',
+            year: r.year || '',
+            venue: r.journal_or_publisher || '',
+            doi: r.doi || '',
+            url: r.url || '',
+            match_field: 'text',
+            snippet: makeSnippet(joined, match)
+          });
+        }
+        if (hits.length > 40) break; // cap
+      }
+    }
+
+    res.status(200).json({ ok: true, concept, hits });
+  } catch (e) {
+    res.status(400).json({ ok: false, error: String(e.message || e) });
   }
 }
 
-function parseCSV(txt) {
-  const lines = txt.trim().split('\n');
-  const headers = lines.shift().split(',').map(h => h.replace(/^"|"$/g,''));
-  return lines.map(line => {
-    const cols = line.match(/("([^"]|"")*"|[^,]+)/g) || [];
+function readJson(req) {
+  return new Promise((resolve, reject) => {
+    let data = '';
+    req.on('data', chunk => data += chunk);
+    req.on('end', () => {
+      try { resolve(JSON.parse(data || '{}')); }
+      catch (e) { reject(e); }
+    });
+  });
+}
+
+function safe(x) { return (x ?? '').toString(); }
+
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if (!lines.length) return [];
+  const headers = splitCSV(lines[0]);
+  return lines.slice(1).map(line => {
+    const cols = splitCSV(line);
     const o = {};
-    headers.forEach((h,i)=> o[h] = (cols[i]||'').replace(/^"|"$/g,'').replace(/""/g,'"'));
+    headers.forEach((h, i) => o[h] = cols[i] || '');
     return o;
   });
 }
 
-async function loadWorks(orcid) {
-  const csvPath = path.join(process.cwd(), 'public', 'data', `${orcid}.csv`);
-  try {
-    const txt = await fs.readFile(csvPath, 'utf8');
-    return parseCSV(txt);
-  } catch {
-    // fallback to ORCID API
-    try {
-      const base = `https://pub.orcid.org/v3.0/${orcid}`;
-      const headers = {
-        'Accept': 'application/json',
-        'User-Agent': 'IanBuchananVault/1.0'
-      };
-      const worksResp = await fetch(`${base}/works`, { headers });
-      if (!worksResp.ok) throw new Error('works fetch failed');
-      const works = await worksResp.json();
-      const summaries = (works?.group || []).flatMap(g => g['work-summary'] || []);
-      const detailPromises = summaries.map(s =>
-        fetch(`${base}/work/${s['put-code']}`, { headers })
-          .then(r => r.ok ? r.json() : null)
-          .catch(() => null)
-      );
-      const details = (await Promise.all(detailPromises)).filter(Boolean);
-      return details.map(w => ({
-        title: w?.title?.title?.value || '',
-        year: w?.['publication-date']?.year?.value || '',
-        journal_or_publisher: w?.['journal-title']?.value || w?.publisher || '',
-        doi: (w?.['external-ids']?.['external-id'] || [])
-          .find(e => e?.['external-id-type']?.toLowerCase() === 'doi')?.['external-id-value'] || '',
-        url: (w?.['external-ids']?.['external-id'] || [])
-          .find(e => e?.['external-id-type']?.toLowerCase() === 'uri')?.['external-id-value'] || ''
-      }));
-    } catch {
-      return [];
-    }
+function splitCSV(line) {
+  // simple CSV splitter with quotes
+  const re = /("([^"]|"")*"|[^,]+)/g;
+  const out = [];
+  let m;
+  while ((m = re.exec(line)) !== null) {
+    out.push((m[1] || '').replace(/^"|"$/g, '').replace(/""/g, '"'));
   }
+  return out;
 }
 
-function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-
-export default async function handler(req, res) {
-  const { concept = '', orcids = '', yearMin, yearMax } = req.method === 'GET' ? req.query : req.body;
-  const ids = Array.isArray(orcids) ? orcids : orcids.split(',').map(s => s.trim()).filter(Boolean);
-
-  const terms = await loadConceptTerms(concept);
-  const regex = new RegExp(terms.map(t => escapeRegExp(t)).join('|'), 'i');
-  const yearMinNum = yearMin ? Number(yearMin) : -Infinity;
-  const yearMaxNum = yearMax ? Number(yearMax) : Infinity;
-  const scholarMap = await loadScholarMap();
-
-  const hits = [];
-  for (const id of ids) {
-    const works = await loadWorks(id);
-    let count = 0;
-    for (const w of works) {
-      if (count >= 2) break; // limit per scholar
-      const y = Number(w.year);
-      if (Number.isFinite(y) && (y < yearMinNum || y > yearMaxNum)) continue;
-      const fields = ['title','journal_or_publisher'];
-      for (const f of fields) {
-        const val = (w[f] || '').toString();
-        const m = val.match(regex);
-        if (m) {
-          const snip = val.slice(Math.max(0, m.index - 40), m.index + 40);
-          hits.push({
-            orcid: id,
-            author: scholarMap.get(id) || id,
-            work_title: w.title || '',
-            year: w.year || '',
-            venue: w.journal_or_publisher || '',
-            doi: w.doi || '',
-            url: w.url || '',
-            match_field: f,
-            snippet: snip,
-            context: val
-          });
-          count += 1;
-          break;
-        }
-      }
-    }
-  }
-
-  res.status(200).json({ ok: true, concept, hits });
+function makeSnippet(text, term) {
+  const i = text.indexOf(term);
+  if (i < 0) return '';
+  const start = Math.max(0, i - 80);
+  const end = Math.min(text.length, i + term.length + 120);
+  return text.slice(start, end).replace(/\s+/g, ' ').trim() + ' …';
 }
