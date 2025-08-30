@@ -1,0 +1,25 @@
+[
+  {
+    "term": "assemblage",
+    "aliases": ["agencement", "assemblage theory", "machinic assemblage"],
+    "definition": "Heterogeneous composition of elements linked by relations of exteriority.",
+    "notes": "Use both Deleuze-Guattari and DeLanda lines; track methodological vs ontological uses.",
+    "seed_quotes": [
+      {
+        "text": "An assemblage is precisely this increase in the dimensions of a multiplicity that necessarily changes in nature as it expands its connections.",
+        "source": "Deleuze & Guattari, A Thousand Plateaus",
+        "year": 1980,
+        "url": ""
+      }
+    ],
+    "tags": ["D&G core", "ontology", "method"]
+  },
+  {
+    "term": "affect",
+    "aliases": ["affect theory", "affects"],
+    "definition": "Prepersonal intensities that pass from body to body.",
+    "notes": "",
+    "seed_quotes": [],
+    "tags": ["D&G core", "affect"]
+  }
+]

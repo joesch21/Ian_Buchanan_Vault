@@ -2,9 +2,9 @@ import { Routes, Route, NavLink } from 'react-router-dom';
 import Home from './pages/Home.jsx';
 import Bibliography from './pages/Bibliography.jsx';
 import Compare from './pages/Compare.jsx';
-import About from './pages/About.jsx';
 import Graph from './pages/Graph.jsx';
-import Scholars from './pages/Scholars.jsx';
+import Concepts from './pages/Concepts.jsx';
+import ConceptCompare from './pages/ConceptCompare.jsx';
 
 export default function App() {
   return (
@@ -15,8 +15,7 @@ export default function App() {
         <NavLink to="/bibliography" className={({isActive}) => isActive ? 'active' : ''}>Bibliography</NavLink>{' | '}
         <NavLink to="/compare" className={({isActive}) => isActive ? 'active' : ''}>Compare</NavLink>{' | '}
         <NavLink to="/graph" className={({isActive}) => isActive ? 'active' : ''}>Graph</NavLink>{' | '}
-        <NavLink to="/scholars" className={({isActive}) => isActive ? 'active' : ''}>Scholars</NavLink>{' | '}
-        <NavLink to="/about" className={({isActive}) => isActive ? 'active' : ''}>About</NavLink>
+        <NavLink to="/concepts" className={({isActive}) => isActive ? 'active' : ''}>Concepts</NavLink>
       </nav>
 
       <Routes>
@@ -24,8 +23,8 @@ export default function App() {
         <Route path="/bibliography" element={<Bibliography />} />
         <Route path="/compare" element={<Compare />} />
         <Route path="/graph" element={<Graph />} />
-        <Route path="/scholars" element={<Scholars />} />
-        <Route path="/about" element={<About />} />
+        <Route path="/concepts" element={<Concepts />} />
+        <Route path="/concepts/compare" element={<ConceptCompare />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
