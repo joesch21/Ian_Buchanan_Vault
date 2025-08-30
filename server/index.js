@@ -1,21 +1,17 @@
-const http = require('http');
-const biblioRoutes = require('./biblioRoutes.js');
+// ESM-friendly server (node >=18)
+import express from "express";
+import cors from "cors";
+import biblioRoutes from "./biblioRoutes.js";
 
-const server = http.createServer((req, res) => {
-  if (req.url === '/api/healthz') {
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ ok: true }));
-    return;
-  }
-  if (req.url.startsWith('/api')) {
-    biblioRoutes(req, res); // /api/orcid/:id/works
-    return;
-  }
-  res.statusCode = 404;
-  res.end('Not found');
-});
+const app = express();
+app.use(cors());
+app.use(express.json({ limit: "1mb" }));
 
-const port = process.env.PORT || 8787;
-server.listen(port, () => {
-  console.log(`proxy listening on ${port}`);
+app.get("/api/healthz", (_req, res) => res.json({ ok: true }));
+
+app.use("/api", biblioRoutes);
+
+const PORT = process.env.PORT || 8787;
+app.listen(PORT, () => {
+  console.log(`[biblio] API listening on http://localhost:${PORT}`);
 });

@@ -6,7 +6,10 @@ export default defineConfig({
   base: './', // <- add this if you see missing CSS/JS on deploy
   server: {
     proxy: {
-      '/api': 'http://localhost:8787'
+      '/api': {
+        target: 'http://localhost:8787',
+        changeOrigin: true
+      }
     }
   }
 })
