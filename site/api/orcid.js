@@ -13,19 +13,14 @@ export default async function handler(req, res) {
 
     const summaries = (works?.group || []).flatMap(g => g['work-summary'] || []);
     if (!summaries.length) {
-      return res.status(200).json({
-        ok: true, source: 'orcid-api', orcid, count: 0, fetchedAt: new Date().toISOString(), rows: []
-      });
+      return res.status(200).json({ ok: true, source: 'orcid-api', orcid, count: 0, rows: [], fetchedAt: new Date().toISOString() });
     }
 
-    const detailPromises = summaries.map(s => {
-      const put = s?.['put-code'];
-      if (put === undefined || put === null) return null;
-      return fetch(`${base}/work/${put}`, { headers })
+    const detailPromises = summaries.map(s =>
+      fetch(`${base}/work/${s['put-code']}`, { headers })
         .then(r => (r.ok ? r.json() : null))
-        .catch(() => null);
-    }).filter(Boolean);
-
+        .catch(() => null)
+    );
     const details = (await Promise.all(detailPromises)).filter(Boolean);
 
     const rows = details.map(w => ({
@@ -41,10 +36,9 @@ export default async function handler(req, res) {
     }));
 
     res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
-    res.status(200).json({
-      ok: true, source: 'orcid-api', orcid, count: rows.length, fetchedAt: new Date().toISOString(), rows
-    });
+    res.status(200).json({ ok: true, source: 'orcid-api', orcid, count: rows.length, fetchedAt: new Date().toISOString(), rows });
   } catch (e) {
     res.status(500).json({ ok: false, error: String(e) });
   }
 }
+
