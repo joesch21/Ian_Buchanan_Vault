@@ -3,8 +3,9 @@ html, body { margin: 0; padding: 0; font-family: system-ui, -apple-system, Segoe
 .container { max-width: var(--maxw); margin: 0 auto; padding: 24px; }
 nav a { margin-right: 12px; }
 nav a.active { text-decoration: underline; font-weight: 600; }
-.btn { display:inline-block; padding:8px 12px; border:1px solid #ddd; border-radius:6px; text-decoration:none; }
+.btn { display:inline-block; padding:6px 10px; border:1px solid #ddd; border-radius:6px; text-decoration:none; background:#fff; cursor:pointer; }
 .btn.primary { border-color:#333; }
+.btn:disabled { opacity:.6; cursor:not-allowed; }
 .badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid #e0e0e0; }
 .badge.ok { background:#eaffea; border-color:#b6ecb6; }
 .badge.warn { background:#fff6e6; border-color:#ffd599; }
