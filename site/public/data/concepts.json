@@ -2,24 +2,153 @@
   {
     "term": "assemblage",
     "aliases": ["agencement", "assemblage theory", "machinic assemblage"],
-    "definition": "Heterogeneous composition of elements linked by relations of exteriority.",
-    "notes": "Use both Deleuze-Guattari and DeLanda lines; track methodological vs ontological uses.",
+    "definition": "Heterogeneous compositions whose parts have relations of exteriority; capacities emerge from connections.",
     "seed_quotes": [
       {
-        "text": "An assemblage is precisely this increase in the dimensions of a multiplicity that necessarily changes in nature as it expands its connections.",
+        "text": "An assemblage increases a multiplicity’s dimensions as it expands its connections.",
+        "source": "Deleuze & Guattari, A Thousand Plateaus",
+        "year": 1980,
+        "url": ""
+      },
+      {
+        "text": "Assemblages are historical entities defined by component parts and their relations.",
+        "source": "Manuel DeLanda, Assemblage Theory",
+        "year": 2016,
+        "url": ""
+      }
+    ],
+    "tags": ["D&G core","ontology","method"]
+  },
+  {
+    "term": "rhizome",
+    "aliases": ["rhizomatic","rhizomatics"],
+    "definition": "Non-hierarchical, acentred multiplicities; connect any point to any other.",
+    "seed_quotes": [
+      {
+        "text": "A rhizome ceaselessly establishes connections between semiotic chains.",
         "source": "Deleuze & Guattari, A Thousand Plateaus",
         "year": 1980,
         "url": ""
       }
     ],
-    "tags": ["D&G core", "ontology", "method"]
+    "tags": ["D&G core","method","epistemology"]
+  },
+  {
+    "term": "deterritorialization",
+    "aliases": ["reterritorialization","lines of flight"],
+    "definition": "Movements that unfix assemblages from established orders; reterritorialization rebinds them.",
+    "seed_quotes": [
+      {
+        "text": "Every deterritorialization implies a corresponding reterritorialization.",
+        "source": "Deleuze & Guattari, A Thousand Plateaus",
+        "year": 1980,
+        "url": ""
+      }
+    ],
+    "tags": ["process","politics"]
+  },
+  {
+    "term": "becoming",
+    "aliases": ["becoming-animal","becoming-woman","becoming-imperceptible"],
+    "definition": "Transformative processes that traverse identities; not imitation but alliance.",
+    "seed_quotes": [
+      {
+        "text": "Becoming is always of a different order than resemblance.",
+        "source": "Deleuze & Guattari, A Thousand Plateaus",
+        "year": 1980,
+        "url": ""
+      }
+    ],
+    "tags": ["process","ethics","aesthetics"]
+  },
+  {
+    "term": "body without organs",
+    "aliases": ["BwO"],
+    "definition": "A plane of consistency; a limit of organization where intensities circulate.",
+    "seed_quotes": [
+      {
+        "text": "The BwO is what remains when you take everything away.",
+        "source": "Deleuze & Guattari, Anti-Oedipus",
+        "year": 1972,
+        "url": ""
+      }
+    ],
+    "tags": ["ontology","psychoanalysis"]
   },
   {
     "term": "affect",
-    "aliases": ["affect theory", "affects"],
-    "definition": "Prepersonal intensities that pass from body to body.",
-    "notes": "",
-    "seed_quotes": [],
-    "tags": ["D&G core", "affect"]
+    "aliases": ["affect theory","intensity"],
+    "definition": "Prepersonal intensities and capacities to affect and be affected.",
+    "seed_quotes": [
+      {
+        "text": "Affect is intensity owned and disowned, a prepersonal passage.",
+        "source": "Brian Massumi, Parables for the Virtual",
+        "year": 2002,
+        "url": ""
+      }
+    ],
+    "tags": ["aesthetics","embodiment","ethology"]
+  },
+  {
+    "term": "war machine",
+    "aliases": ["nomadology","smooth space"],
+    "definition": "A nomadic assemblage exterior to the State apparatus; vector of lines of flight.",
+    "seed_quotes": [
+      {
+        "text": "The war machine is exterior to the State apparatus.",
+        "source": "Deleuze & Guattari, A Thousand Plateaus",
+        "year": 1980,
+        "url": ""
+      }
+    ],
+    "tags": ["politics","milieu"]
+  },
+  {
+    "term": "multiplicity",
+    "aliases": ["manifold","n-1"],
+    "definition": "Entities defined by dimensions and connections rather than essence.",
+    "seed_quotes": [
+      {
+        "text": "Multiplicity is made by subtraction of the One.",
+        "source": "Deleuze & Guattari, A Thousand Plateaus",
+        "year": 1980,
+        "url": ""
+      }
+    ],
+    "tags": ["ontology","mathesis"]
+  },
+  {
+    "term": "machinic",
+    "aliases": ["machinic assemblage","desiring-machines"],
+    "definition": "Productive couplings of human and nonhuman components; transversal operations.",
+    "seed_quotes": [
+      {
+        "text": "Desiring-machines are binary series of flows and breaks.",
+        "source": "Deleuze & Guattari, Anti-Oedipus",
+        "year": 1972,
+        "url": ""
+      }
+    ],
+    "tags": ["production","techne"]
+  },
+  {
+    "term": "schizoanalysis",
+    "aliases": ["desiring-production"],
+    "definition": "Analysis of desire as productive flows; political and collective rather than familial.",
+    "seed_quotes": [
+      {
+        "text": "Schizoanalysis seeks the investments of desire in social production.",
+        "source": "Deleuze & Guattari, Anti-Oedipus",
+        "year": 1972,
+        "url": ""
+      },
+      {
+        "text": "A practical cartography of desire’s collective arrangements.",
+        "source": "Ian Buchanan, The Incomplete Project of Schizoanalysis",
+        "year": 2021,
+        "url": ""
+      }
+    ],
+    "tags": ["method","politics","psychoanalysis"]
   }
 ]

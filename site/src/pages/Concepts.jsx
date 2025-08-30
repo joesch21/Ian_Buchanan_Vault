@@ -1,112 +1,91 @@
 import { useEffect, useState } from 'react';
-import Papa from 'papaparse';
-
-function emptyConcept() {
-  return { term:'', aliases:[], definition:'', notes:'', seed_quotes:[], tags:[] };
-}
+import { Link } from 'react-router-dom';
 
 export default function Concepts() {
-  const [rows, setRows] = useState([]);
+  const [concepts, setConcepts] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const isProd = import.meta.env.PROD;
 
-  useEffect(() => { fetch('/api/concepts').then(r=>r.json()).then(setRows); }, []);
+  useEffect(() => {
+    fetch('/api/concepts').then(r => r.json()).then(setConcepts).catch(()=>setConcepts([]));
+  }, []);
 
-  const update = (idx, field, value) => {
-    setRows(r => r.map((c,i) => i===idx ? { ...c, [field]: value } : c));
-  };
+  function addConcept() {
+    setConcepts(c => [...c, { term:'', aliases:[], definition:'', seed_quotes:[], tags:[] }]);
+  }
 
-  const updateAliases = (idx, val) => update(idx, 'aliases', val.split(',').map(s=>s.trim()).filter(Boolean));
-  const updateTags = (idx, val) => update(idx, 'tags', val.split(',').map(s=>s.trim()).filter(Boolean));
-  const updateSeed = (idx, val) => {
-    const arr = val.split('\n').map(line => {
-      const [text='',source='',year='',url=''] = line.split('~~');
-      return { text:text.trim(), source:source.trim(), year:year.trim(), url:url.trim() };
-    }).filter(q => q.text);
-    update(idx, 'seed_quotes', arr);
-  };
-
-  const addRow = () => setRows(r => r.concat([emptyConcept()]));
-  const delRow = (idx) => setRows(r => r.filter((_,i) => i!==idx));
-
-  const save = async () => {
-    await fetch('/api/concepts', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(rows)
+  async function save() {
+    if (isProd) { alert('Saving disabled on production build.'); return; }
+    setSaving(true);
+    const resp = await fetch('/api/concepts', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(concepts)
     });
-  };
-
-  const exportCSV = () => {
-    const data = rows.map(c => ({
-      term: c.term,
-      aliases: c.aliases.join('|'),
-      definition: c.definition,
-      notes: c.notes,
-      seed_quotes: c.seed_quotes.map(q => [q.text,q.source,q.year,q.url].join('~~')).join('|'),
-      tags: c.tags.join('|')
-    }));
-    const csv = Papa.unparse(data);
-    const blob = new Blob([csv], {type:'text/csv'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = 'concepts.csv'; a.click();
-    URL.revokeObjectURL(a.href);
-  };
-
-  const importCSV = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    Papa.parse(file, {
-      header: true,
-      complete: ({ data }) => {
-        const mapped = data.filter(r => r.term).map(r => ({
-          term: r.term.trim(),
-          aliases: (r.aliases||'').split('|').map(s=>s.trim()).filter(Boolean),
-          definition: r.definition || '',
-          notes: r.notes || '',
-          seed_quotes: (r.seed_quotes||'').split('|').filter(Boolean).map(line => {
-            const [text='',source='',year='',url=''] = line.split('~~');
-            return { text:text.trim(), source:source.trim(), year:year.trim(), url:url.trim() };
-          }),
-          tags: (r.tags||'').split('|').map(s=>s.trim()).filter(Boolean)
-        }));
-        setRows(mapped);
-      }
-    });
-  };
+    setSaving(false);
+    if (resp.ok) alert('Saved (dev). In production, use GitHub/Blob for persistence.');
+    else alert('Save failed.');
+  }
 
   return (
-    <div className="container">
-      <h2>Concepts</h2>
-      <div style={{marginBottom: '1rem', display:'flex', gap:8, flexWrap:'wrap'}}>
-        <button className="button" onClick={addRow}>Add</button>
-        <button className="button" onClick={save}>Save</button>
-        <button className="button" onClick={exportCSV}>Export CSV</button>
-        <label className="button"><input type="file" accept=".csv" onChange={importCSV} style={{display:'none'}} />Import CSV</label>
-      </div>
-      <table className="table">
+    <div style={{padding:'2rem', maxWidth: 900}}>
+      <h1>Concepts (Glossary Manager)</h1>
+      <p>
+        <Link to="/concepts/compare">Open Concept Comparer</Link>
+      </p>
+
+      <table style={{width:'100%', borderCollapse:'collapse'}}>
         <thead>
           <tr>
-            <th>Term</th>
-            <th>Aliases</th>
-            <th>Definition</th>
-            <th>Notes</th>
-            <th>Seed Quotes (text~~source~~year~~url per line)</th>
-            <th>Tags</th>
-            <th></th>
+            <th style={th}>Term</th>
+            <th style={th}>Aliases (comma)</th>
+            <th style={th}>Definition</th>
+            <th style={th}>Tags (comma)</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((c,idx) => (
-            <tr key={idx}>
-              <td><input value={c.term} onChange={e=>update(idx,'term',e.target.value)} /></td>
-              <td><input value={c.aliases.join(', ')} onChange={e=>updateAliases(idx,e.target.value)} /></td>
-              <td><input value={c.definition} onChange={e=>update(idx,'definition',e.target.value)} /></td>
-              <td><textarea value={c.notes} onChange={e=>update(idx,'notes',e.target.value)} /></td>
-              <td><textarea value={c.seed_quotes.map(q=>[q.text,q.source,q.year,q.url].join('~~')).join('\n')} onChange={e=>updateSeed(idx,e.target.value)} /></td>
-              <td><input value={c.tags.join(', ')} onChange={e=>updateTags(idx,e.target.value)} /></td>
-              <td><button className="button" onClick={()=>delRow(idx)}>Delete</button></td>
+          {concepts.map((c, i) => (
+            <tr key={i} style={{borderBottom:'1px solid #ddd'}}>
+              <td style={td}>
+                <input style={input} value={c.term} onChange={e=>update(i,'term',e.target.value)} />
+              </td>
+              <td style={td}>
+                <input style={input} value={(c.aliases||[]).join(', ')} onChange={e=>update(i,'aliases', splitCSV(e.target.value))} />
+              </td>
+              <td style={td}>
+                <textarea style={{...input, height:70}} value={c.definition||''} onChange={e=>update(i,'definition',e.target.value)} />
+              </td>
+              <td style={td}>
+                <input style={input} value={(c.tags||[]).join(', ')} onChange={e=>update(i,'tags', splitCSV(e.target.value))} />
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      <div style={{display:'flex', gap:8, marginTop:12}}>
+        <button className="btn" onClick={addConcept}>Add Concept</button>
+        <button className="btn primary" onClick={save} disabled={saving}>{saving?'Saving…':'Save (dev only)'}</button>
+      </div>
+      <p style={{opacity:.7, marginTop:8}}>
+        Writes are disabled on production (Vercel read-only FS). For prod persistence, wire GitHub API or Vercel Blob/KV.
+      </p>
     </div>
   );
+
+  function update(i, key, val) {
+    setConcepts(cs => {
+      const copy = [...cs];
+      copy[i] = {...copy[i], [key]: val};
+      return copy;
+    });
+  }
+}
+
+const th = { textAlign:'left', padding:'8px' };
+const td = { padding:'8px', verticalAlign:'top' };
+const input = { width:'100%', padding:'6px', fontFamily:'inherit' };
+
+function splitCSV(s) {
+  return s.split(',').map(x => x.trim()).filter(Boolean);
 }
