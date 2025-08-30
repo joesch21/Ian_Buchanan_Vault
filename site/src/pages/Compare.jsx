@@ -40,6 +40,16 @@ function toMarkdown(rows) {
   return lines.join('\n');
 }
 
+function useExamples(setOrcids, fetchData) {
+  const examples = [
+    '0000-0003-4864-6495', // Ian Buchanan
+    '0000-0001-2345-6789', // placeholder – replace with a real ORCID
+    '0000-0002-9876-5432'  // placeholder – replace with a real ORCID
+  ].join(', ');
+  setOrcids(examples);
+  fetchData();
+}
+
 export default function Compare() {
   const [orcids, setOrcids] = useState('');
   const [rows, setRows] = useState([]);
@@ -134,6 +144,17 @@ export default function Compare() {
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
           <button className="btn primary" onClick={fetchData} disabled={loading}>
             {loading ? 'Loading…' : 'Fetch'}
+          </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={() => {
+              // eslint-disable-next-line react-hooks/rules-of-hooks
+              useExamples(setOrcids, fetchData);
+            }}
+            title="Prefill with sample ORCIDs and fetch"
+          >
+            Use examples
           </button>
           {filtered.length>0 && (
             <>
