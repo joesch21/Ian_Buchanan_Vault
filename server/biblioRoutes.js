@@ -1,25 +1,16 @@
-const { fetchOrcidWorks } = require('./clients/orcid.js');
+import { Router } from "express";
+import { fetchOrcidWorks } from "./clients/orcid.js";
 
-module.exports = async function biblioRoutes(req, res) {
-  const url = new URL(req.url, `http://${req.headers.host}`);
+const r = Router();
 
-  if (req.method === 'GET') {
-    const match = url.pathname.match(/^\/api\/orcid\/([^/]+)\/works$/);
-    if (match) {
-      try {
-        const works = await fetchOrcidWorks(match[1]);
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ works }));
-      } catch (err) {
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ error: String(err) }));
-      }
-      return;
-    }
+r.get("/orcid/:id/works", async (req, res) => {
+  try {
+    const data = await fetchOrcidWorks(req.params.id);
+    res.json(data);
+  } catch (e) {
+    console.error("ORCID route error:", e);
+    res.status(500).json({ error: "orcid_fetch_failed" });
   }
+});
 
-  res.statusCode = 404;
-  res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify({ error: 'Not found' }));
-};
+export default r;
