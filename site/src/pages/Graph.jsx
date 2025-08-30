@@ -34,18 +34,40 @@ const STOP = new Set([
   'de','la','le','et','du','des'
 ]);
 
-function extractConcepts(title, venue) {
-  const text = `${fmt(title)} ${fmt(venue)}`.toLowerCase();
-  // keep hyphenated terms, remove punctuation except hyphen
-  const tokens = norm(text).split(/\s+/).filter(Boolean);
-  const onegrams = tokens.filter(t => t.length > 2 && !STOP.has(t));
-  // simple bigrams for phrases like "assemblage theory"
+// D&G core concepts (curated fallback for concept dropdown)
+const DG_GLOSSARY = [
+  'assemblage', 'assemblage theory', 'deterritorialization', 'reterritorialization',
+  'rhizome', 'rhizomatic', 'multiplicity', 'becoming', 'becoming-animal',
+  'affect', 'affect theory', 'body without organs', 'BwO',
+  'war machine', 'lines of flight', 'desiring-production', 'schizoanalysis',
+  'immanence', 'plane of immanence', 'virtual', 'actual',
+  'machinic', 'machinic assemblage', 'diagram', 'minor literature',
+  'smooth space', 'striated space', 'nomadology', 'territory',
+  'event', 'sense', 'difference and repetition', 'a thousand plateaus',
+  'anti-oedipus', 'control society', 'geophilosophy'
+];
+
+function extractConcepts(title, venue, abstractText = '') {
+  const text = `${fmt(title)} ${fmt(venue)} ${fmt(abstractText)}`.toLowerCase();
+  // keep hyphens for terms like "war-machine" then normalize to space-joined later
+  const cleaned = text.replace(/[^a-z0-9\s-]/g, ' ').replace(/\s+/g, ' ').trim();
+  const tokens = cleaned.split(' ').filter(Boolean);
+
+  const onegrams = tokens
+    .map(t => t.replace(/^-+|-+$/g,''))
+    .filter(t => t.length > 2 && !STOP.has(t));
+
+  // bigrams for phrases like "assemblage theory"
   const bigrams = [];
   for (let i=0;i<tokens.length-1;i++){
     const a=tokens[i], b=tokens[i+1];
     if (a.length>2 && b.length>2 && !STOP.has(a) && !STOP.has(b)) bigrams.push(`${a} ${b}`);
   }
-  return [...onegrams, ...bigrams];
+
+  // normalize hyphenated variants to space-joined (war-machine -> war machine)
+  const norm1 = onegrams.map(t => t.replace(/-/g,' '));
+  const norm2 = bigrams.map(t => t.replace(/-/g,' '));
+  return [...norm1, ...norm2];
 }
 
 function tallyConcepts(rows) {
@@ -200,6 +222,7 @@ export default function Graph() {
   const [focusOrcid, setFocusOrcid] = useState('');
   const [yearMin, setYearMin] = useState('');
   const [yearMax, setYearMax] = useState('');
+  const [includeGlossary, setIncludeGlossary] = useState(true);
 
   // NEW: UI filters
   const [selScholars, setSelScholars] = useState([]);   // array of ORCID strings
@@ -227,29 +250,34 @@ export default function Graph() {
     return s;
   }, [rows]);
 
-  // Concept dropdown options (only meaningful in tripartite mode)
+  // Concept dropdown options (tripartite + glossary fallback)
   const conceptOptions = useMemo(() => {
-    if (mode !== 'tripartite' || !rows.length) return [];
-    // Reuse the same constraints used in buildTripartite
+    if (!rows.length) return includeGlossary ? [...new Set(DG_GLOSSARY)].sort() : [];
+    // apply same year gate used in tripartite build
     const yMin = Number(yearMin); const yMax = Number(yearMax);
     const ym = Number.isFinite(yMin) ? yMin : -Infinity;
     const yx = Number.isFinite(yMax) ? yMax : Infinity;
 
-    // lightweight recount with same logic as tallyConcepts + minFreq filter
+    // frequency tally for extracted concepts
     const counts = new Map();
     for (const r of rows) {
       const yy = Number(r.year);
       if (Number.isFinite(yy) && (yy < ym || yy > yx)) continue;
-      const terms = extractConcepts(r.title, r.journal_or_publisher);
+      const terms = extractConcepts(r.title, r.journal_or_publisher /*, r.abstract */);
       for (const t of new Set(terms)) {
         counts.set(t, (counts.get(t)||0)+1);
       }
     }
-    return Array.from(counts.entries())
+
+    // keep extracted terms >= minFreq
+    const extracted = Array.from(counts.entries())
       .filter(([,n]) => n >= (Number(minFreq)||2))
-      .map(([k]) => k)
-      .sort();
-  }, [rows, mode, minFreq, yearMin, yearMax]);
+      .map(([k]) => k);
+
+    // union with glossary if enabled
+    const union = includeGlossary ? new Set([...extracted, ...DG_GLOSSARY]) : new Set(extracted);
+    return [...union].sort();
+  }, [rows, minFreq, yearMin, yearMax, includeGlossary]);
 
   async function fetchAll() {
     try {
@@ -445,6 +473,14 @@ export default function Graph() {
             </label>
             <label style={{marginLeft:12}}>Highlight ORCID
               <input value={focusOrcid} onChange={(e)=>setFocusOrcid(e.target.value)} style={{width:220,marginLeft:6,padding:'4px 6px'}} placeholder="0000-0003-4864-6495"/>
+            </label>
+            <label style={{marginLeft:12}}>
+              <input
+                type="checkbox"
+                checked={includeGlossary}
+                onChange={(e)=>setIncludeGlossary(e.target.checked)}
+              />{' '}
+              Include D&G glossary
             </label>
             <span style={{marginLeft:12,opacity:.7}}>
               Legend: <span style={{color:'#1f77b4'}}>● Author</span> · <span style={{color:'#6e6e6e'}}>● Work</span> · <span style={{color:'#b8860b'}}>● Concept</span>
