@@ -11,11 +11,11 @@ export default function Bibliography(){
   const [err, setErr] = useState('');
 
   useEffect(() => {
-    const id = import.meta.env.DEFAULT_ORCID || '0000-0002-1825-0097';
-    fetchOrcidWorks(id)
+    const orcid = import.meta.env.VITE_DEFAULT_ORCID || "0000-0002-1825-0097";
+    fetchOrcidWorks(orcid)
       .then(ws => { loadWorks(ws); setLoading(false); })
       .catch(e => { setErr(String(e)); setLoading(false); });
-  }, []);
+  }, [fetchOrcidWorks]);
 
   if (err) return <p style={{color:'crimson'}}>Failed to load bibliography: {err}</p>;
   if (loading) return <p>Loading bibliography…</p>;
