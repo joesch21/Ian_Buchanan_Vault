@@ -224,6 +224,21 @@ export default function Graph() {
   const [yearMax, setYearMax] = useState('');
   const [includeGlossary, setIncludeGlossary] = useState(true);
 
+  // Scholar presets (loaded from /data/scholars.json)
+  const [allScholars, setAllScholars] = useState([]);
+  const [chosenScholars, setChosenScholars] = useState([]); // array of orcid strings
+
+  useEffect(() => {
+    fetch('/data/scholars.json')
+      .then(r => r.ok ? r.json() : [])
+      .then(list => {
+        // hide entries without a real ORCID
+        const clean = (Array.isArray(list) ? list : []).filter(s => s.orcid && !/^tbd$/i.test(s.orcid));
+        setAllScholars(clean);
+      })
+      .catch(() => setAllScholars([]));
+  }, []);
+
   // NEW: UI filters
   const [selScholars, setSelScholars] = useState([]);   // array of ORCID strings
   const [selConcepts, setSelConcepts] = useState([]);   // array of concept strings
@@ -278,6 +293,12 @@ export default function Graph() {
     const union = includeGlossary ? new Set([...extracted, ...DG_GLOSSARY]) : new Set(extracted);
     return [...union].sort();
   }, [rows, minFreq, yearMin, yearMax, includeGlossary]);
+
+  function syncOrcidInputFromSelection(nextSelected) {
+    setChosenScholars(nextSelected);
+    const unique = Array.from(new Set(nextSelected)).filter(Boolean);
+    setOrcids(unique.join(', '));
+  }
 
   async function fetchAll() {
     try {
@@ -431,6 +452,44 @@ export default function Graph() {
       <h2>Rhizome Graph</h2>
 
       <div style={{display:'grid',gap:10,marginBottom:12}}>
+        {/* Deleuzian Scholars preset picker */}
+        <div style={{display:'grid', gap:6, margin:'8px 0'}}>
+          <label>Deleuzian Scholars (presets)
+            <select
+              multiple
+              value={chosenScholars}
+              onChange={(e) => syncOrcidInputFromSelection(
+                Array.from(e.target.selectedOptions).map(o => o.value)
+              )}
+              style={{minHeight: '6.5em', width:'100%', padding:'6px'}}
+            >
+              {allScholars.map(s => (
+                <option key={s.orcid} value={s.orcid}>
+                  {s.name} — {s.orcid}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
+            <button
+              className="btn"
+              type="button"
+              onClick={() => { setChosenScholars([]); setOrcids(''); }}
+            >
+              Clear selection
+            </button>
+            <button
+              className="btn"
+              type="button"
+              onClick={() => { if (chosenScholars.length) fetchAll(); }}
+              title="Use selected scholars to build the graph"
+            >
+              Build from selected
+            </button>
+          </div>
+        </div>
+
         <label>
           ORCIDs (comma-separated)
           <input
