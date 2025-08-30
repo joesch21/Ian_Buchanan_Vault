@@ -201,6 +201,10 @@ export default function Graph() {
   const [yearMin, setYearMin] = useState('');
   const [yearMax, setYearMax] = useState('');
 
+  // NEW: UI filters
+  const [selScholars, setSelScholars] = useState([]);   // array of ORCID strings
+  const [selConcepts, setSelConcepts] = useState([]);   // array of concept strings
+
   const svgRef = useRef(null);
   const wrapRef = useRef(null);
   const resizeRef = useRef(null);
@@ -216,6 +220,36 @@ export default function Graph() {
     const yx = Number.isFinite(yMax) ? yMax : Infinity;
     return buildTripartite(rows, Number(minFreq) || 2, ym, yx, focusOrcid.trim());
   }, [rows, mode, minFreq, focusOrcid, yearMin, yearMax]);
+
+  // Scholar dropdown options (unique ORCIDs from loaded rows)
+  const scholarOptions = useMemo(() => {
+    const s = Array.from(new Set(rows.map(r => r.author_orcid))).sort();
+    return s;
+  }, [rows]);
+
+  // Concept dropdown options (only meaningful in tripartite mode)
+  const conceptOptions = useMemo(() => {
+    if (mode !== 'tripartite' || !rows.length) return [];
+    // Reuse the same constraints used in buildTripartite
+    const yMin = Number(yearMin); const yMax = Number(yearMax);
+    const ym = Number.isFinite(yMin) ? yMin : -Infinity;
+    const yx = Number.isFinite(yMax) ? yMax : Infinity;
+
+    // lightweight recount with same logic as tallyConcepts + minFreq filter
+    const counts = new Map();
+    for (const r of rows) {
+      const yy = Number(r.year);
+      if (Number.isFinite(yy) && (yy < ym || yy > yx)) continue;
+      const terms = extractConcepts(r.title, r.journal_or_publisher);
+      for (const t of new Set(terms)) {
+        counts.set(t, (counts.get(t)||0)+1);
+      }
+    }
+    return Array.from(counts.entries())
+      .filter(([,n]) => n >= (Number(minFreq)||2))
+      .map(([k]) => k)
+      .sort();
+  }, [rows, mode, minFreq, yearMin, yearMax]);
 
   async function fetchAll() {
     try {
@@ -255,6 +289,29 @@ export default function Graph() {
     svg.selectAll('*').remove();
 
     const { nodes, links } = graph;
+    // Compute focus sets from UI filters
+    const scholarFocus = new Set(selScholars);
+    const conceptFocus = new Set(selConcepts);
+
+    // Tag nodes that match filters (direct focus)
+    nodes.forEach(n => {
+      n.focus = false;
+      if (n.type === 'author' && scholarFocus.has(n.label)) n.focus = true;
+      if (n.type === 'concept' && conceptFocus.has(n.label)) n.focus = true;
+    });
+
+    // If any focus active, softly expand to 1-hop neighbors
+    if (scholarFocus.size || conceptFocus.size) {
+      const marked = new Set(nodes.filter(n => n.focus).map(n => n.id));
+      links.forEach(l => {
+        if (marked.has(l.source.id)) marked.add(l.target.id);
+        if (marked.has(l.target.id)) marked.add(l.source.id);
+      });
+      nodes.forEach(n => { n.near = marked.has(n.id); });
+    } else {
+      nodes.forEach(n => { n.near = true; });
+    }
+
     svg.attr('viewBox', [0, 0, w, h]).attr('width', '100%').attr('height', h);
 
     const g = svg.append('g');
@@ -269,18 +326,25 @@ export default function Graph() {
     if (!nodes.length) return;
 
     const link = g.append('g')
-      .attr('stroke', '#cfcfd6').attr('stroke-opacity', 0.8)
+      .attr('stroke', '#cfcfd6')
       .selectAll('line').data(links).enter().append('line')
-      .attr('stroke-width', d => Math.max(1, d.weight ? Math.sqrt(d.weight) : 1));
+      .attr('stroke-width', d => Math.max(1, d.weight ? Math.sqrt(d.weight) : 1))
+      .attr('stroke-opacity', () => (scholarFocus.size || conceptFocus.size) ? 0.25 : 0.8);
 
     const color = (d) => d.type === 'author' ? '#1f77b4' : d.type === 'concept' ? '#b8860b' : '#6e6e6e';
     const radius = (d) => d.type === 'author' ? 8 : d.type === 'concept' ? 7 : 5;
-    const stroke  = (d) => d.focus ? '#111' : '#fff';
-    const strokeW = (d) => d.focus ? 2 : 1.2;
 
     const nodeG = g.append('g')
       .selectAll('circle').data(nodes).enter().append('circle')
-      .attr('r', radius).attr('fill', color).attr('stroke', stroke).attr('stroke-width', strokeW)
+      .attr('r', radius)
+      .attr('fill', color)
+      .attr('stroke', d => d.focus ? '#111' : '#fff')
+      .attr('stroke-width', d => d.focus ? 2 : 1.2)
+      .attr('opacity', d => {
+        // de-emphasize non-near nodes when filters are active
+        if (scholarFocus.size || conceptFocus.size) return d.near ? 1 : 0.15;
+        return 1;
+      })
       .call(d3.drag()
         .on('start', (event,d)=>{ if(!event.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
         .on('drag', (event,d)=>{ d.fx=event.x; d.fy=event.y; })
@@ -319,7 +383,7 @@ export default function Graph() {
     document.addEventListener('visibilitychange', onVis);
 
     return () => { document.removeEventListener('visibilitychange', onVis); sim.stop(); };
-  }, [graph, w, h]);
+  }, [graph, w, h, selScholars, selConcepts]);
 
   // Kick re-center when container size changes
   useEffect(() => { resizeRef.current?.(); }, [w, h]);
@@ -387,6 +451,38 @@ export default function Graph() {
             </span>
           </div>
         )}
+
+        {/* NEW: Scholar & Concept filters */}
+        <div style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'center'}}>
+          <label>Scholar filter
+            <select
+              multiple
+              value={selScholars}
+              onChange={(e)=> setSelScholars(Array.from(e.target.selectedOptions).map(o=>o.value))}
+              style={{minWidth:240, marginLeft:6, padding:'4px 6px'}}
+            >
+              {scholarOptions.map(id => <option key={id} value={id}>{id}</option>)}
+            </select>
+          </label>
+
+          <label>Concept filter
+            <select
+              multiple
+              value={selConcepts}
+              onChange={(e)=> setSelConcepts(Array.from(e.target.selectedOptions).map(o=>o.value))}
+              disabled={mode!=='tripartite'}
+              style={{minWidth:240, marginLeft:6, padding:'4px 6px'}}
+            >
+              {conceptOptions.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </label>
+
+          {(selScholars.length || selConcepts.length) && (
+            <button className="btn" onClick={()=>{ setSelScholars([]); setSelConcepts([]); }}>
+              Clear filters
+            </button>
+          )}
+        </div>
 
         {error && <p style={{color:'crimson'}}>Error: {error}</p>}
       </div>
