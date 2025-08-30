@@ -1,0 +1,27 @@
+name: Fetch ORCID (on-demand)
+
+on:
+  workflow_dispatch:
+    inputs:
+      orcid:
+        description: "ORCID ID (e.g., 0000-0003-4864-6495)"
+        required: true
+        type: string
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install requests
+      - name: Run fetch
+        run: python scripts/fetch_orcid.py "${{ inputs.orcid }}"
+      - name: Commit files
+        run: |
+          git config user.name "orcid-bot"
+          git config user.email "actions@github.com"
+          git add site/public/data/*.csv site/public/data/*.md data/master.csv || true
+          git commit -m "chore(data): fetch ORCID ${{ inputs.orcid }}" || echo "No changes"
+          git push
