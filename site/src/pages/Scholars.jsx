@@ -4,6 +4,7 @@ import Papa from 'papaparse';
 export default function Scholars() {
   const [scholars, setScholars] = useState([]);
   const [csvText, setCsvText] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetch('/api/scholars')
@@ -22,12 +23,17 @@ export default function Scholars() {
     setScholars([...scholars, { name: '', orcid: '' }]);
   }
 
-  function saveChanges() {
-    fetch('/api/scholars', {
+  async function saveChanges() {
+    setSaving(true);
+    const resp = await fetch('/api/save-config', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(scholars)
-    }).then(() => alert('Saved!'));
+      body: JSON.stringify({ kind: 'scholars', payload: scholars, message: 'Update scholars via Scholars UI' })
+    });
+    setSaving(false);
+    const j = await resp.json();
+    if (j.ok) alert(`Saved (${j.mode}). ${j.url ? 'Open: ' + j.url : ''}`);
+    else alert('Save failed: ' + j.error);
   }
 
   function exportCSV() {
@@ -92,7 +98,7 @@ export default function Scholars() {
       </table>
 
       <div style={{display:'flex', gap:8, flexWrap:'wrap', marginTop:12}}>
-        <button onClick={saveChanges}>Save Changes</button>
+        <button onClick={saveChanges} disabled={saving}>{saving ? 'Saving…' : 'Save Changes'}</button>
         <button onClick={addScholar}>Add Scholar</button>
         <button onClick={exportCSV}>Export CSV</button>
         <input type="file" accept=".csv" onChange={importCSV} />
