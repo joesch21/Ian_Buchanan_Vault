@@ -1,20 +1,20 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "groups": [
     {
       "id": "core",
       "label": "Core Deleuzian scholars",
       "members": [
-        { "name": "Ian Buchanan", "orcid": "0000-0003-4864-6495" },
-        { "name": "Claire Colebrook", "orcid": "0000-0000-0000-0000" },
-        { "name": "Manuel DeLanda", "orcid": "0000-0000-0000-0000" },
-        { "name": "Brian Massumi", "orcid": "0000-0000-0000-0000" },
-        { "name": "Rosi Braidotti", "orcid": "0000-0000-0000-0000" },
-        { "name": "Gregg Lambert", "orcid": "0000-0000-0000-0000" },
-        { "name": "Adrian Parr", "orcid": "0000-0000-0000-0000" },
-        { "name": "Patricia MacCormack", "orcid": "0000-0000-0000-0000" },
-        { "name": "John Marks", "orcid": "0000-0000-0000-0000" },
-        { "name": "Nicholas Thoburn", "orcid": "0000-0000-0000-0000" }
+        { "id": "buchanan-ian",   "name": "Ian Buchanan",        "orcid": "0000-0003-4864-6495" },
+        { "id": "colebrook-claire","name": "Claire Colebrook",   "orcid": "" },
+        { "id": "delanda-manuel", "name": "Manuel DeLanda",      "orcid": "" },
+        { "id": "massumi-brian",  "name": "Brian Massumi",       "orcid": "" },
+        { "id": "braidotti-rosi", "name": "Rosi Braidotti",      "orcid": "" },
+        { "id": "lambert-gregg",  "name": "Gregg Lambert",       "orcid": "" },
+        { "id": "parr-adrian",    "name": "Adrian Parr",         "orcid": "" },
+        { "id": "maccormack-patricia", "name": "Patricia MacCormack", "orcid": "" },
+        { "id": "marks-john",     "name": "John Marks",          "orcid": "" },
+        { "id": "thoburn-nicholas","name": "Nicholas Thoburn",   "orcid": "" }
       ]
     }
   ]
