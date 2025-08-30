@@ -60,7 +60,7 @@ export default function Compare() {
   const [sort, setSort] = useState('year-desc'); // year-desc|year-asc|title|type
   const [typeSet, setTypeSet] = useState(new Set()); // toggle pills
   const [scholarGroups, setScholarGroups] = useState([]);
-  const [selScholars, setSelScholars] = useState(new Set());
+  const [selScholars, setSelScholars] = useState(new Set()); // ids
 
   useEffect(() => { loadScholars().then(setScholarGroups); }, []);
   useEffect(() => {
@@ -74,13 +74,17 @@ export default function Compare() {
   }, [selScholars]);
 
   function applySelectedScholars() {
-    const allMembers = scholarGroups.flatMap(g => g.members);
-    const chosen = allMembers.filter(m => selScholars.has(m.orcid)).map(m => m.orcid);
-
-    // merge with what's already typed, remove duplicates
+    const all = scholarGroups.flatMap(g => g.members);
+    const chosen = all.filter(m => selScholars.has(m.id) && m.orcid);
     const existing = orcids.split(',').map(s=>s.trim()).filter(Boolean);
-    const merged = Array.from(new Set([...existing, ...chosen]));
+    const merged = Array.from(new Set([...existing, ...chosen.map(m => m.orcid)]));
     setOrcids(merged.join(', '));
+  }
+
+  function clearOrcids() {
+    setOrcids('');
+    setSelScholars(new Set());
+    localStorage.removeItem('selScholars');
   }
 
   async function fetchData() {
@@ -163,7 +167,7 @@ export default function Compare() {
               key={g.id}
               label={`Scholars: ${g.label}`}
               items={g.members}
-              idKey="orcid"
+              idKey="id"
               labelKey="name"
               selected={selScholars}
               onChange={setSelScholars}
@@ -171,6 +175,9 @@ export default function Compare() {
           ))}
           <button className="btn" onClick={() => { applySelectedScholars(); fetchData(); }}>
             Add & Fetch
+          </button>
+          <button className="btn" onClick={clearOrcids} title="Clear ORCIDs input & selections">
+            Clear ORCIDs
           </button>
         </div>
         <label>

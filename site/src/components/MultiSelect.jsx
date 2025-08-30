@@ -6,8 +6,7 @@ export default function MultiSelect({
   idKey,
   labelKey,
   selected,        // Set<string>
-  onChange,        // (Set<string>) => void
-  groupId,         // optional string to scope "Select all/None" to this list
+  onChange        // (Set<string>) => void
 }) {
   const [open, setOpen] = useState(false);
   const popRef = useRef(null);

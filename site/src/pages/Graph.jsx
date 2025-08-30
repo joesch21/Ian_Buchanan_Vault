@@ -96,16 +96,22 @@ export default function Graph() {
   const [error,setError] = useState('');
   const [scholarGroups, setScholarGroups] = useState([]);
   const [conceptList, setConceptList] = useState([]);
-  const [selScholars, setSelScholars] = useState(new Set());
+  const [selScholars, setSelScholars] = useState(new Set()); // ids
   const [selConcepts, setSelConcepts] = useState(new Set());
   const [conceptFilter, setConceptFilter] = useState(new Set());
+  const [customConcept, setCustomConcept] = useState('');
 
   const svgRef = useRef(null);
   const wrapRef = useRef(null);
   const { w, h } = useContainerSize(wrapRef);
 
   useEffect(() => { loadScholars().then(setScholarGroups); }, []);
-  useEffect(() => { loadConcepts().then(setConceptList); }, []);
+  useEffect(() => {
+    loadConcepts().then(base => {
+      const extra = JSON.parse(localStorage.getItem('customConcepts') || '[]');
+      setConceptList([...base, ...extra]);
+    });
+  }, []);
   useEffect(() => {
     try {
       const a = new Set(JSON.parse(localStorage.getItem('selScholars') || '[]'));
@@ -123,13 +129,35 @@ export default function Graph() {
     [orcids]
   );
   function applySelectedScholars() {
-    const allMembers = scholarGroups.flatMap(g => g.members);
-    const chosen = allMembers.filter(m => selScholars.has(m.orcid)).map(m => m.orcid);
-
-    // merge with what's already typed, remove duplicates
+    const all = scholarGroups.flatMap(g => g.members);
+    const chosen = all.filter(m => selScholars.has(m.id) && m.orcid);
     const existing = orcids.split(',').map(s=>s.trim()).filter(Boolean);
-    const merged = Array.from(new Set([...existing, ...chosen]));
+    const merged = Array.from(new Set([...existing, ...chosen.map(m => m.orcid)]));
     setOrcids(merged.join(', '));
+  }
+
+  function clearOrcids() {
+    setOrcids('');
+    setSelScholars(new Set());
+    localStorage.removeItem('selScholars');
+  }
+
+  function addCustomConcept() {
+    const label = customConcept.trim();
+    if (!label) return;
+    const id = label.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+    if (conceptList.some(c => c.id === id)) {
+      setSelConcepts(new Set([...selConcepts, id]));
+      setCustomConcept('');
+      return;
+    }
+    const item = { id, label, aliases:[label], color:'#666' };
+    const nextList = [...conceptList, item];
+    setConceptList(nextList);
+    const extras = nextList.filter(c => !c.aliases?.includes('assemblage') && !c.aliases?.includes('affect'));
+    localStorage.setItem('customConcepts', JSON.stringify(extras));
+    setSelConcepts(new Set([...selConcepts, id]));
+    setCustomConcept('');
   }
 
   const filteredRows = useMemo(() => {
@@ -307,7 +335,7 @@ export default function Graph() {
               key={g.id}
               label={`Scholars: ${g.label}`}
               items={g.members}
-              idKey="orcid"
+              idKey="id"
               labelKey="name"
               selected={selScholars}
               onChange={setSelScholars}
@@ -315,6 +343,9 @@ export default function Graph() {
           ))}
           <button className="btn" onClick={() => { applySelectedScholars(); fetchAll(); }}>
             Add & Fetch
+          </button>
+          <button className="btn" onClick={clearOrcids} title="Clear ORCIDs input & selections">
+            Clear ORCIDs
           </button>
           <MultiSelect
             label="Concepts"
@@ -327,6 +358,15 @@ export default function Graph() {
           <button className="btn" onClick={() => setConceptFilter(new Set(selConcepts))}>
             Apply concepts
           </button>
+          <div style={{display:'flex', gap:6, alignItems:'center', marginTop:6}}>
+            <input
+              placeholder="Add concept (e.g., ‘territorialization’)"
+              value={customConcept}
+              onChange={e=>setCustomConcept(e.target.value)}
+              style={{flex:'1 1 auto', padding:'6px'}}
+            />
+            <button className="btn" onClick={addCustomConcept}>Add</button>
+          </div>
         </div>
         <label>
           ORCIDs (comma-separated)
