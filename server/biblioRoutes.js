@@ -2,20 +2,24 @@ const { fetchOrcidWorks } = require('./clients/orcid.js');
 
 module.exports = async function biblioRoutes(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
-  if (req.method === 'GET' && url.pathname.startsWith('/api/orcid/')) {
-    const id = url.pathname.split('/')[3];
-    if (url.pathname.endsWith('/works')) {
+
+  if (req.method === 'GET') {
+    const match = url.pathname.match(/^\/api\/orcid\/([^/]+)\/works$/);
+    if (match) {
       try {
-        const works = await fetchOrcidWorks(id);
+        const works = await fetchOrcidWorks(match[1]);
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(works));
+        res.end(JSON.stringify({ works }));
       } catch (err) {
         res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ error: String(err) }));
       }
       return;
     }
   }
+
   res.statusCode = 404;
-  res.end('Not found');
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify({ error: 'Not found' }));
 };
