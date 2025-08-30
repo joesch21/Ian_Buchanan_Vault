@@ -7,9 +7,12 @@ export default async function handler(req, res) {
     const works = await fetch(`${base}/works`, { headers }).then(r => r.json());
     const summaries = (works.group || []).flatMap(g => g['work-summary'] || []);
     const details = await Promise.all(
-      summaries.map(s => fetch(`${base}/work/${s['put-code']}`, { headers }).then(r => r.json()))
+      summaries.map(s =>
+        fetch(`${base}/work/${s['put-code']}`, { headers }).then(r => r.json())
+      )
     );
     const rows = details.map(w => ({
+      orcid_id: orcid,
       title: w?.title?.title?.value || '',
       type: w?.type || '',
       year: w?.['publication-date']?.year?.value || '',
@@ -17,13 +20,11 @@ export default async function handler(req, res) {
       doi: (w?.['external-ids']?.['external-id'] || [])
              .find(e => e['external-id-type'] === 'doi')?.['external-id-value'] || '',
       url: (w?.['external-ids']?.['external-id'] || [])
-             .find(e => e['external-id-type'] === 'uri')?.['external-id-value'] || '',
-      source: 'ORCID',
-      orcid_id: orcid
+             .find(e => e['external-id-type'] === 'uri')?.['external-id-value'] || ''
     }));
     res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
-    res.status(200).json({ rows });
+    res.status(200).json({ ok: true, source: 'orcid-api', orcid, count: rows.length, fetchedAt: new Date().toISOString(), rows });
   } catch (e) {
-    res.status(500).json({ error: String(e) });
+    res.status(500).json({ ok: false, error: String(e) });
   }
 }
