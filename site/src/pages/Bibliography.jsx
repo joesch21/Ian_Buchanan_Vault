@@ -1,37 +1,32 @@
 import { useEffect, useState } from 'react';
 import { fetchOrcidWorks } from '../lib/orcidClient.js';
+import { loadWorks, biblioStore } from '../lib/biblioStore.js';
+import BiblioFilters from '../components/biblio/BiblioFilters.jsx';
+import BiblioList from '../components/biblio/BiblioList.jsx';
+import RightRail from '../components/biblio/RightRail.jsx';
+import '../styles/biblio.css';
 
-const DEFAULT_ORCID = '0000-0003-4864-6495';
-
-export default function Bibliography() {
-  const [items, setItems] = useState([]);
+export default function Bibliography(){
+  const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
 
   useEffect(() => {
-    const url = new URL(window.location.href);
-    const orcid = (url.searchParams.get('orcid') || DEFAULT_ORCID).trim();
-    fetchOrcidWorks(orcid)
-      .then(setItems)
-      .catch(e => setErr(String(e)));
+    const id = import.meta.env.DEFAULT_ORCID || '0000-0002-1825-0097';
+    fetchOrcidWorks(id)
+      .then(ws => { loadWorks(ws); setLoading(false); })
+      .catch(e => { setErr(String(e)); setLoading(false); });
   }, []);
 
-  if (err) return <div className="container"><p style={{color:'crimson'}}>Failed to load bibliography: {err}</p></div>;
-  if (!items.length) return <div className="container"><p>Loading bibliography…</p></div>;
+  if (err) return <p style={{color:'crimson'}}>Failed to load bibliography: {err}</p>;
+  if (loading) return <p>Loading bibliography…</p>;
 
   return (
-    <div className="container">
-      <h2>Bibliography</h2>
-      <ul>
-        {items.map(it => (
-          <li key={it.id}>
-            <strong>{it.title || '(untitled)'}</strong>
-            {it.year ? ` — ${it.year}` : ''}
-            {it.venue ? ` — ${it.venue}` : (it.publisher ? ` — ${it.publisher}` : '')}
-            {it.doi && <> — DOI: <a href={`https://doi.org/${it.doi}`} target="_blank" rel="noreferrer">{it.doi}</a></>}
-            {it.isbn13 && <> — ISBN: {it.isbn13}</>}
-          </li>
-        ))}
-      </ul>
+    <div className="biblio-page">
+      <BiblioFilters />
+      <div className="biblio-main">
+        <BiblioList items={biblioStore.items} />
+        <RightRail />
+      </div>
     </div>
   );
 }
