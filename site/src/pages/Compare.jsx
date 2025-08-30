@@ -1,66 +1,223 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
+
+const fmt = (x) => (x ?? '').toString();
+const norm = (s) => fmt(s).toLowerCase().trim().replace(/\s+/g,' ').replace(/[^\w\s]/g,'');
+
+function dedupeRows(rows) {
+  const seen = new Set();
+  const out = [];
+  for (const r of rows) {
+    const doi = fmt(r.doi).toLowerCase();
+    const key = doi
+      ? `doi:${doi}`
+      : `ty:${norm(r.title)}|${fmt(r.year)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(r);
+  }
+  return out;
+}
+
+function toCSV(rows) {
+  const headers = ['author_orcid','title','year','type','journal_or_publisher','doi','url'];
+  const esc = (s) => `"${fmt(s).replace(/"/g,'""')}"`;
+  const body = rows.map(r => headers.map(h => esc(r[h] ?? '')).join(',')).join('\n');
+  return headers.join(',') + '\n' + body;
+}
+
+function toMarkdown(rows) {
+  const lines = ['# Comparison Export\n'];
+  const sorted = [...rows].sort((a,b)=>(fmt(b.year).localeCompare(fmt(a.year)) || norm(a.title).localeCompare(norm(b.title))));
+  for (const r of sorted) {
+    const bits = [`**${fmt(r.title)||'(untitled)'}**`];
+    if (r.year) bits.push(r.year);
+    if (r.journal_or_publisher) bits.push(r.journal_or_publisher);
+    if (r.type) bits.push(`_${r.type}_`);
+    if (r.doi) bits.push(`DOI: ${r.doi}`);
+    if (r.url) bits.push(`[link](${r.url})`);
+    lines.push(`- ${bits.join(' — ')}`);
+  }
+  return lines.join('\n');
+}
 
 export default function Compare() {
-  const [summary, setSummary] = useState(null);
-  const [err, setErr] = useState('');
-  const [query, setQuery] = useState('');
+  const [orcids, setOrcids] = useState('');
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [q, setQ] = useState('');
+  const [sort, setSort] = useState('year-desc'); // year-desc|year-asc|title|type
+  const [typeSet, setTypeSet] = useState(new Set()); // toggle pills
 
-  useEffect(() => {
-    fetch('/data/compare/summary.json')
-      .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
-      .then(setSummary)
-      .catch(e => setErr(String(e)));
-  }, []);
+  async function fetchData() {
+    setLoading(true);
+    setRows([]);
+    const ids = orcids.split(',').map(s => s.trim()).filter(Boolean);
+    let all = [];
+    for (const id of ids) {
+      try {
+        const res = await fetch(`/api/orcid?orcid=${encodeURIComponent(id)}`);
+        const data = await res.json();
+        if (data?.ok && Array.isArray(data.rows)) {
+          const mapped = data.rows.map(r => ({
+            author_orcid: id,
+            title: r.title || '',
+            year: r.year || '',
+            type: r.type || '',
+            journal_or_publisher: r.journal_or_publisher || '',
+            doi: r.doi || '',
+            url: r.url || ''
+          }));
+          all = all.concat(mapped);
+        }
+      } catch { /* skip */ }
+    }
+    setRows(dedupeRows(all));
+    setLoading(false);
+  }
 
-  if (err) return <div className="container"><p style={{color:'crimson'}}>Failed to load comparison: {err}</p></div>;
-  if (!summary) return <div className="container"><p>Loading comparison…</p></div>;
+  const allTypes = useMemo(() => {
+    const s = new Set();
+    rows.forEach(r => s.add(r.type || 'other'));
+    return Array.from(s).sort();
+  }, [rows]);
 
-  const { years, authors } = summary;
-  const filtered = authors.filter(a => a.orcid_id.includes(query.trim()));
+  const filtered = useMemo(() => {
+    let cur = rows;
+    const needle = q.toLowerCase().trim();
+    if (needle) {
+      cur = cur.filter(r =>
+        fmt(r.title).toLowerCase().includes(needle) ||
+        fmt(r.year).toLowerCase().includes(needle) ||
+        fmt(r.journal_or_publisher).toLowerCase().includes(needle) ||
+        fmt(r.doi).toLowerCase().includes(needle)
+      );
+    }
+    if (typeSet.size) cur = cur.filter(r => typeSet.has(r.type || 'other'));
+
+    const sorters = {
+      'year-desc': (a,b) => fmt(b.year).localeCompare(fmt(a.year)) || norm(a.title).localeCompare(norm(b.title)),
+      'year-asc' : (a,b) => fmt(a.year).localeCompare(fmt(b.year)) || norm(a.title).localeCompare(norm(b.title)),
+      'title'    : (a,b) => norm(a.title).localeCompare(norm(b.title)),
+      'type'     : (a,b) => fmt(a.type).localeCompare(fmt(b.type)) || fmt(b.year).localeCompare(fmt(a.year)),
+    };
+    return [...cur].sort(sorters[sort]);
+  }, [rows, q, sort, typeSet]);
+
+  function download(text, filename, type='text/plain') {
+    const blob = new Blob([text], {type});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  const toggleType = (t) => {
+    const next = new Set(typeSet);
+    next.has(t) ? next.delete(t) : next.add(t);
+    setTypeSet(next);
+  };
 
   return (
     <div className="container">
-      <h2>Author Comparison</h2>
-      <p>
-        Matrix shows totals and per-year counts for each ORCID ingested.
-        Raw CSV: <a href="/data/compare/matrix.csv">matrix.csv</a>
-      </p>
+      <h2>Compare Bibliographies</h2>
 
-      <input
-        type="text"
-        placeholder="Filter ORCID…"
-        value={query}
-        onChange={e => setQuery(e.target.value)}
-        style={{marginBottom:12,padding:4}}
-      />
+      <div style={{display:'grid',gap:12,marginBottom:12}}>
+        <label>
+          ORCIDs (comma-separated)
+          <input
+            style={{width:'100%',padding:'8px',marginTop:6}}
+            placeholder="0000-0003-4864-6495, 0000-0001-2345-6789"
+            value={orcids}
+            onChange={(e)=>setOrcids(e.target.value)}
+          />
+        </label>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <button className="btn primary" onClick={fetchData} disabled={loading}>
+            {loading ? 'Loading…' : 'Fetch'}
+          </button>
+          {filtered.length>0 && (
+            <>
+              <button className="btn" onClick={()=>download(toCSV(filtered),'compare.csv','text/csv')}>Download CSV</button>
+              <button className="btn" onClick={()=>download(toMarkdown(filtered),'compare.md')}>View Markdown</button>
+            </>
+          )}
+        </div>
 
-      <table className="table">
-        <thead>
-          <tr>
-            <th>ORCID</th>
-            <th>Total</th>
-            {years.map(y => <th key={y}>{y}</th>)}
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map(a => (
-            <tr key={a.orcid_id}>
-              <td><code>{a.orcid_id}</code></td>
-              <td>{a.total}</td>
-              {years.map(y => <td key={y}>{a.by_year[y] || 0}</td>)}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        <div style={{display:'grid',gap:8}}>
+          <label>
+            Search / Year / Venue / DOI
+            <input
+              style={{width:'100%',padding:'8px',marginTop:6}}
+              value={q}
+              onChange={(e)=>setQ(e.target.value)}
+              placeholder="e.g. 2023, assemblage, 10.1080/…"
+            />
+          </label>
 
-      <h3 style={{marginTop:'1.5rem'}}>Per-author dumps</h3>
-      <ul>
-        {filtered.map(a => (
-          <li key={a.orcid_id}>
-            <code>{a.orcid_id}</code> — <a href={`/data/${a.orcid_id}.csv`}>CSV</a> · <a href={`/data/${a.orcid_id}.md`}>MD</a>
-          </li>
-        ))}
-      </ul>
+          <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+            <span>Sort:</span>
+            <select value={sort} onChange={(e)=>setSort(e.target.value)} style={{padding:'6px'}}>
+              <option value="year-desc">Year (new → old)</option>
+              <option value="year-asc">Year (old → new)</option>
+              <option value="title">Title (A→Z)</option>
+              <option value="type">Type</option>
+            </select>
+
+            <span style={{marginLeft:12}}>Type:</span>
+            {allTypes.map(t => (
+              <button
+                key={t||'other'}
+                onClick={()=>toggleType(t||'other')}
+                className="btn"
+                style={{
+                  borderColor: typeSet.has(t||'other') ? '#333' : '#ddd',
+                  background: typeSet.has(t||'other') ? '#f0f0f0' : '#fff'
+                }}
+              >
+                {t || 'other'}
+              </button>
+            ))}
+            {typeSet.size>0 && (
+              <button className="btn" onClick={()=>setTypeSet(new Set())}>Clear types</button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {filtered.length>0 ? (
+        <div style={{overflowX:'auto'}}>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Author (ORCID)</th>
+                <th>Title</th>
+                <th>Year</th>
+                <th>Type</th>
+                <th>Venue</th>
+                <th>DOI</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((r,i)=>(
+                <tr key={i}>
+                  <td><code>{r.author_orcid}</code></td>
+                  <td>{r.title}</td>
+                  <td>{r.year}</td>
+                  <td>{r.type || '—'}</td>
+                  <td>{r.journal_or_publisher}</td>
+                  <td>{r.doi ? <a href={`https://doi.org/${r.doi}`} target="_blank" rel="noreferrer">{r.doi}</a> : ''}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p style={{opacity:.7,marginTop:8}}>
+            Showing {filtered.length} items (de-duplicated by DOI, then title+year).
+          </p>
+        </div>
+      ) : (
+        <p style={{opacity:.8}}>{loading ? 'Fetching…' : 'Enter ORCIDs and click Fetch.'}</p>
+      )}
     </div>
   );
 }
+
