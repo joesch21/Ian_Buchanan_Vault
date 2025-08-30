@@ -1,4 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import MultiSelect from '../components/MultiSelect.jsx';
+import { loadScholars } from '../lib/loadLists.js';
 
 const fmt = (x) => (x ?? '').toString();
 const norm = (s) => fmt(s).toLowerCase().trim().replace(/\s+/g,' ').replace(/[^\w\s]/g,'');
@@ -57,6 +59,25 @@ export default function Compare() {
   const [q, setQ] = useState('');
   const [sort, setSort] = useState('year-desc'); // year-desc|year-asc|title|type
   const [typeSet, setTypeSet] = useState(new Set()); // toggle pills
+  const [scholarGroups, setScholarGroups] = useState([]);
+  const [selScholars, setSelScholars] = useState(new Set());
+
+  useEffect(() => { loadScholars().then(setScholarGroups); }, []);
+  useEffect(() => {
+    try {
+      const a = new Set(JSON.parse(localStorage.getItem('selScholars') || '[]'));
+      setSelScholars(a);
+    } catch { /* ignore */ }
+  }, []);
+  useEffect(() => {
+    localStorage.setItem('selScholars', JSON.stringify(Array.from(selScholars)));
+  }, [selScholars]);
+
+  function applySelectedScholars() {
+    const allMembers = scholarGroups.flatMap(g => g.members);
+    const chosen = allMembers.filter(m => selScholars.has(m.orcid)).map(m => m.orcid);
+    setOrcids(chosen.join(', '));
+  }
 
   async function fetchData() {
     setLoading(true);
@@ -132,6 +153,22 @@ export default function Compare() {
       <h2>Compare Bibliographies</h2>
 
       <div style={{display:'grid',gap:12,marginBottom:12}}>
+        <div style={{display:'flex', gap:8, flexWrap:'wrap', alignItems:'center', marginBottom:8}}>
+          {scholarGroups.map(g => (
+            <MultiSelect
+              key={g.id}
+              label={`Scholars: ${g.label}`}
+              items={g.members}
+              idKey="orcid"
+              labelKey="name"
+              selected={selScholars}
+              onChange={setSelScholars}
+            />
+          ))}
+          <button className="btn" onClick={() => { applySelectedScholars(); fetchData(); }}>
+            Add & Fetch
+          </button>
+        </div>
         <label>
           ORCIDs (comma-separated)
           <input

@@ -1,0 +1,9 @@
+{
+  "version": "1.0",
+  "concepts": [
+    { "id":"assemblage", "label":"Assemblage", "aliases":["assemblage","assemblages"], "color":"#C87A00" },
+    { "id":"affect", "label":"Affect", "aliases":["affect","affective"], "color":"#7A2AC8" },
+    { "id":"schizoanalysis", "label":"Schizoanalysis", "aliases":["schizoanalysis"], "color":"#00897B" },
+    { "id":"war-machine", "label":"War Machine", "aliases":["war machine","war-machine"], "color":"#B23A48" }
+  ]
+}

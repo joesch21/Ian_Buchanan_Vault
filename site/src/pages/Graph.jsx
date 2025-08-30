@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
+import MultiSelect from '../components/MultiSelect.jsx';
+import { loadScholars, loadConcepts } from '../lib/loadLists.js';
 
 // ---------- helpers ----------
 const fmt = (x) => (x ?? '').toString();
@@ -92,23 +94,59 @@ export default function Graph() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error,setError] = useState('');
+  const [scholarGroups, setScholarGroups] = useState([]);
+  const [conceptList, setConceptList] = useState([]);
+  const [selScholars, setSelScholars] = useState(new Set());
+  const [selConcepts, setSelConcepts] = useState(new Set());
+  const [conceptFilter, setConceptFilter] = useState(new Set());
 
   const svgRef = useRef(null);
   const wrapRef = useRef(null);
   const { w, h } = useContainerSize(wrapRef);
 
+  useEffect(() => { loadScholars().then(setScholarGroups); }, []);
+  useEffect(() => { loadConcepts().then(setConceptList); }, []);
+  useEffect(() => {
+    try {
+      const a = new Set(JSON.parse(localStorage.getItem('selScholars') || '[]'));
+      const c = new Set(JSON.parse(localStorage.getItem('selConcepts') || '[]'));
+      setSelScholars(a); setSelConcepts(c); setConceptFilter(c);
+    } catch { /* ignore */ }
+  }, []);
+  useEffect(() => {
+    localStorage.setItem('selScholars', JSON.stringify(Array.from(selScholars)));
+    localStorage.setItem('selConcepts', JSON.stringify(Array.from(selConcepts)));
+  }, [selScholars, selConcepts]);
+
   const orcidList = useMemo(
     () => orcids.split(',').map(s=>s.trim()).filter(Boolean),
     [orcids]
   );
+  function applySelectedScholars() {
+    const allMembers = scholarGroups.flatMap(g => g.members);
+    const chosen = allMembers.filter(m => selScholars.has(m.orcid)).map(m => m.orcid);
+    setOrcids(chosen.join(', '));
+  }
+
+  const filteredRows = useMemo(() => {
+    if (!conceptFilter.size) return rows;
+    const aliases = conceptList
+      .filter(c => conceptFilter.has(c.id))
+      .flatMap(c => c.aliases || [])
+      .map(a => a.toLowerCase());
+    return rows.filter(r => {
+      const text = `${fmt(r.title)} ${fmt(r.journal_or_publisher)} ${fmt(r.type)}`.toLowerCase();
+      return aliases.some(a => text.includes(a));
+    });
+  }, [rows, conceptFilter, conceptList]);
 
   const graph = useMemo(() => {
     if (!orcidList.length) return { nodes:[], links:[] };
-    if (!rows.length)      return { nodes:[], links:[] };
+    if (!filteredRows.length) return { nodes:[], links:[] };
     return mode === 'bipartite'
-      ? buildBipartite(rows, orcidList)
-      : buildAuthorCoWork(rows, orcidList);
-  }, [rows, mode, orcidList]);
+      ? buildBipartite(filteredRows, orcidList)
+      : buildAuthorCoWork(filteredRows, orcidList);
+  }, [filteredRows, mode, orcidList]);
 
   async function fetchAll() {
     try {
@@ -259,6 +297,33 @@ export default function Graph() {
     <div className="container" ref={wrapRef}>
       <h2>Rhizome Graph</h2>
       <div style={{display:'grid',gap:10,marginBottom:12}}>
+        <div style={{display:'flex', gap:8, flexWrap:'wrap', alignItems:'center', marginBottom:8}}>
+          {scholarGroups.map(g => (
+            <MultiSelect
+              key={g.id}
+              label={`Scholars: ${g.label}`}
+              items={g.members}
+              idKey="orcid"
+              labelKey="name"
+              selected={selScholars}
+              onChange={setSelScholars}
+            />
+          ))}
+          <button className="btn" onClick={() => { applySelectedScholars(); fetchAll(); }}>
+            Add & Fetch
+          </button>
+          <MultiSelect
+            label="Concepts"
+            items={conceptList}
+            idKey="id"
+            labelKey="label"
+            selected={selConcepts}
+            onChange={setSelConcepts}
+          />
+          <button className="btn" onClick={() => setConceptFilter(new Set(selConcepts))}>
+            Apply concepts
+          </button>
+        </div>
         <label>
           ORCIDs (comma-separated)
           <input
