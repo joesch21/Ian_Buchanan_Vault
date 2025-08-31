@@ -1,0 +1,10 @@
+[
+  {
+    "id": "demo:1",
+    "title": "Demo Work",
+    "year": 2024,
+    "authors": [{"name": "Demo Author"}],
+    "concepts": [],
+    "url": "https://example.com"
+  }
+]
