@@ -1,5 +1,6 @@
 import React from "react";
 import CartographyAsk from "@/components/CartographyAsk";
+import GuideAccordion from "@/components/GuideAccordion";
 import { compileCartography } from "@/lib/cartography";
 import { renderForceGraph } from "@/lib/graphRender";
 import "@/styles/graph.css";
@@ -30,6 +31,7 @@ export default function Cartography() {
       <h1>Scholarly Cartography</h1>
       <p>Describe what you want to map; the AI compiles a cartography and we render it as a graph.</p>
       <CartographyAsk onSpec={onSpec} />
+      <GuideAccordion mode="compact" />
       {notice && <div className="note">{notice}</div>}
       <div id="graph-canvas" style={{minHeight:480, marginTop:12, border:"1px solid #eee", borderRadius:8}} />
       {graph && <RefsDrawer refs={graph.refs} />}
