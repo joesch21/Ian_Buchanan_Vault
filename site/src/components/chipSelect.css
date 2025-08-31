@@ -1,0 +1,21 @@
+.chipsel { position: relative; display: inline-block; min-width: 280px; }
+.chipsel__label { display:block; font-weight:600; margin:8px 0 4px; }
+.chipsel__ctrl {
+  border:1px solid #ddd; border-radius:10px; padding:6px 34px 6px 8px; min-height:40px; cursor:pointer;
+  background:#fff; display:flex; align-items:center; position:relative;
+}
+.chipsel__caret { position:absolute; right:10px; opacity:.6; }
+.chipsel__chips { display:flex; gap:6px; flex-wrap:wrap; }
+.chipsel__placeholder { color:#777; }
+.chipsel__chip {
+  border:1px solid rgba(0,0,0,.08); border-radius:999px; padding:4px 8px; background:#f6f6f6; font-size:12px;
+}
+.chipsel__chip--selected { background:#f0e9d0; border-color:#e3d08a; }
+.chipsel__panel {
+  position:absolute; z-index:50; left:0; right:0; margin-top:6px; border:1px solid #ddd; border-radius:10px;
+  background:#fff; box-shadow:0 10px 24px rgba(0,0,0,.12); overflow:auto;
+}
+.chipsel__search { width:100%; padding:8px 10px; border:0; border-bottom:1px solid #eee; outline:none; }
+.chipsel__list { display:grid; grid-template-columns:1fr; max-height:inherit; overflow:auto; }
+.chipsel__option { text-align:left; padding:8px 10px; border:0; background:#fff; cursor:pointer; }
+.chipsel__option:hover, .chipsel__option.is-active { background:#fff6d9; }
