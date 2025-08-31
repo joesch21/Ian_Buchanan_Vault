@@ -1,5 +1,5 @@
 // Vercel Node runtime (for multipart)
-export const config = { runtime: "node" };
+export const config = { runtime: "nodejs" };
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { Octokit } from "octokit";
