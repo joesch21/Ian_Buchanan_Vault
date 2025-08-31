@@ -1,67 +1,106 @@
-// Runtime: nodejs (NOT edge, we need node fetch & URL libs)
 export const config = { runtime: "nodejs" };
-
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-// Minimal ORCID work shape → our frontend Work[]
-type Work = {
+// Frontend Work type
+export type Work = {
   id: string;
   title: string;
   year?: number;
   authors: { orcid?: string; name: string }[];
   concepts?: string[];
+  url?: string;
+  doi?: string;
 };
 
-async function fetchOrcidWorks(orcid: string): Promise<Work[]> {
-  // ORCID public API: summary record -> activities -> works
-  // https://pub.orcid.org/v3.0/{orcid}/works (JSON)
-  const url = `https://pub.orcid.org/v3.0/${encodeURIComponent(orcid)}/works`;
-  const r = await fetch(url, { headers: { Accept: "application/json" } });
+async function fetchOrcidSummaries(orcid: string) {
+  const u = `https://pub.orcid.org/v3.0/${encodeURIComponent(orcid)}/works`;
+  const r = await fetch(u, { headers: { Accept: "application/json" } });
   if (!r.ok) throw new Error(`ORCID ${orcid} ${r.status}`);
-  const data = await r.json();
+  return r.json();
+}
 
-  // Flatten basic summary items. We only extract title & year quickly.
-  const group = data.group ?? [];
-  const works: Work[] = [];
+async function fetchOrcidWorkDetail(orcid: string, putCode: number | string) {
+  const u = `https://pub.orcid.org/v3.0/${encodeURIComponent(orcid)}/work/${putCode}`;
+  const r = await fetch(u, { headers: { Accept: "application/json" } });
+  if (!r.ok) throw new Error(`work ${putCode} ${r.status}`);
+  return r.json();
+}
+
+async function fetchOrcidWorks(orcid: string): Promise<Work[]> {
+  const sum = await fetchOrcidSummaries(orcid);
+  const group = sum.group ?? [];
+
+  const summaries: { putCode?: number | string; title: string; year?: number }[] = [];
   for (const g of group) {
-    const summaries = g["work-summary"] ?? [];
-    for (const s of summaries) {
-      const title = s?.title?.title?.value || "Untitled";
-      const yearStr = s?.["publication-date"]?.year?.value;
-      const year = yearStr ? Number(yearStr) : undefined;
-      const putCode = s?.["put-code"];
-      works.push({
-        id: `${orcid}:${putCode ?? title}`,
-        title,
-        year,
-        authors: [{ orcid, name: orcid }], // ORCID API needs extra calls for full names; keep orcid as placeholder
-        concepts: [] // concepts/tags not provided by ORCID; leave empty
+    for (const s of g["work-summary"] ?? []) {
+      summaries.push({
+        putCode: s?.["put-code"],
+        title: s?.title?.title?.value || "Untitled",
+        year: s?.["publication-date"]?.year?.value
+          ? Number(s["publication-date"].year.value)
+          : undefined,
       });
     }
   }
-  return works;
+
+  const chosen = summaries.slice(0, 40);
+  const details = await Promise.allSettled(
+    chosen.map((x) => fetchOrcidWorkDetail(orcid, x.putCode as any))
+  );
+
+  const linkMap = new Map<number | string, { doi?: string; url?: string }>();
+  details.forEach((d, i) => {
+    if (d.status !== "fulfilled") return;
+    const exids = d.value?.["external-ids"]?.["external-id"] ?? [];
+    let doi: string | undefined,
+      url: string | undefined;
+    for (const ex of exids) {
+      const type = String(ex?.["external-id-type"] || "").toLowerCase();
+      const val = ex?.["external-id-value"];
+      if (type === "doi" && val) doi = val;
+      if (!doi && type === "uri" && val) url = val;
+    }
+    linkMap.set(chosen[i].putCode!, { doi, url });
+  });
+
+  return chosen.map((x) => {
+    const lk = linkMap.get(x.putCode!);
+    const doiUrl = lk?.doi ? `https://doi.org/${lk.doi}` : undefined;
+    return {
+      id: `${orcid}:${x.putCode ?? x.title}`,
+      title: x.title,
+      year: x.year,
+      authors: [{ orcid, name: orcid }],
+      concepts: [],
+      doi: lk?.doi,
+      url: doiUrl || lk?.url,
+    };
+  });
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const orcidsParam = String(req.query.orcids || "").trim();
     if (!orcidsParam) return res.status(400).json({ error: "missing orcids" });
-    const orcids = orcidsParam.split(",").map(s => s.trim()).filter(Boolean);
+    const orcids = orcidsParam
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
 
-    // Fetch in parallel, flatten, and de-dupe by id
     const batches = await Promise.allSettled(orcids.map(fetchOrcidWorks));
-    const outMap = new Map<string, Work>();
-    for (const b of batches) {
-      if (b.status === "fulfilled") {
-        for (const w of b.value) outMap.set(w.id, w);
-      }
-    }
-    const all = [...outMap.values()];
-    if (!all.length) return res.status(404).json({ error: "no works found" });
+    const out = new Map<string, Work>();
+    for (const b of batches)
+      if (b.status === "fulfilled")
+        for (const w of b.value) out.set(w.id, w);
+    const arr = [...out.values()];
+    if (!arr.length) return res.status(404).json({ error: "no works found" });
 
-    res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=86400");
-    return res.status(200).json(all);
+    res.setHeader(
+      "Cache-Control",
+      "s-maxage=3600, stale-while-revalidate=86400"
+    );
+    res.status(200).json(arr);
   } catch (e: any) {
-    return res.status(500).json({ error: e?.message || "server error" });
+    res.status(500).json({ error: e?.message || "server error" });
   }
 }

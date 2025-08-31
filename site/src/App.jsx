@@ -16,6 +16,7 @@ export default function App() {
         <NavLink to="/bibliography" className={({isActive}) => isActive ? 'active' : ''}>Bibliography</NavLink>{' | '}
         <NavLink to="/compare" className={({isActive}) => isActive ? 'active' : ''}>Compare</NavLink>{' | '}
         <NavLink to="/graph" className={({isActive}) => isActive ? 'active' : ''}>Graph</NavLink>{' | '}
+        <NavLink to="/instructions" className={({isActive}) => isActive ? 'active' : ''}>Instructions</NavLink>{' | '}
         <NavLink to="/trainer" className={({isActive}) => isActive ? 'active' : ''}>Trainer</NavLink>{' | '}
         <NavLink to="/about" className={({isActive}) => isActive ? 'active' : ''}>About</NavLink>
       </nav>

@@ -14,6 +14,11 @@ const workKey = (row) => {
   return doi ? `doi:${doi}` : `ty:${norm(row.title)}|${fmt(row.year)}`;
 };
 
+function scholarFallback(w) {
+  const q = encodeURIComponent(`${w.label || w.title} ${w.year ?? ''}`);
+  return `https://scholar.google.com/scholar?q=${q}`;
+}
+
 // --- concept extraction (naïve but effective) ---
 const STOP = new Set([
   'and','or','the','a','an','of','in','on','for','to','with','without','by','from','into','as','at','about',
@@ -56,15 +61,16 @@ function tallyConcepts(rows) {
 function buildBipartite(rows) {
   const nodes = new Map();  // id -> node
   const links = [];
-  const ensure = (id, type, label) => {
-    if (!nodes.has(id)) nodes.set(id, { id, type, label });
+  const ensure = (id, type, label, extras = {}) => {
+    if (!nodes.has(id)) nodes.set(id, { id, type, label, ...extras });
+    else Object.assign(nodes.get(id), extras);
     return nodes.get(id);
   };
   for (const r of rows) {
     const aId = `author:${r.author_orcid}`;
     ensure(aId, 'author', r.author_orcid);
     const wId = `work:${workKey(r)}`;
-    ensure(wId, 'work', r.title || '(untitled)');
+    ensure(wId, 'work', r.title || '(untitled)', { url: r.url, year: r.year });
     links.push({ source: aId, target: wId, title: r.title || '(untitled)', year: r.year || '' });
   }
   return { nodes: [...nodes.values()], links };
@@ -151,8 +157,9 @@ function buildTripartite(rows, minConceptFreq = 2, yearMin = -Infinity, yearMax 
     .map(([k]) => k)
   );
 
-  const ensure = (id, type, label) => {
-    if (!nodes.has(id)) nodes.set(id, { id, type, label });
+  const ensure = (id, type, label, extras = {}) => {
+    if (!nodes.has(id)) nodes.set(id, { id, type, label, ...extras });
+    else Object.assign(nodes.get(id), extras);
     return nodes.get(id);
   };
 
@@ -163,7 +170,7 @@ function buildTripartite(rows, minConceptFreq = 2, yearMin = -Infinity, yearMax 
 
     // nodes
     ensure(aId, 'author', r.author_orcid);
-    ensure(wId, 'work', title);
+    ensure(wId, 'work', title, { url: r.url, year: r.year });
 
     // edges: author -> work
     links.push({ source: aId, target: wId, year: r.year || '' });
@@ -287,13 +294,13 @@ export default function Graph() {
             title: w.title,
             year: w.year || '',
             journal_or_publisher: '',
-            doi: '',
-            url: ''
+            doi: w.doi || '',
+            url: w.url || ''
           });
         }
       }
 
-      renderGraph({ nodes: rows, edges: [] });
+      renderGraph({ nodes: works, edges: [] });
       setRows(rows);
       setOrcids(allOrcids.join(', '));
       setTimeout(() => {
@@ -317,7 +324,28 @@ export default function Graph() {
   function renderGraph({ nodes, edges }) {
     const el = document.getElementById('graph-canvas');
     if (!el) return;
-    el.innerHTML = `<div style="padding:8px;color:#666">Nodes: ${nodes.length}, Edges: ${edges.length}</div>`;
+    const works = nodes.filter(n => n.type === 'work' || n.title);
+    const lis = works.map(w => {
+      const label = w.label || w.title || 'Untitled';
+      const href = w.url || scholarFallback(w);
+      return `<li><a href="${href}" target="_blank" rel="noopener">${escape(label)}${w.year?` (${w.year})`:''}</a></li>`;
+    }).join('');
+    el.innerHTML = `
+      <div style="padding:8px;color:#666">Nodes: ${nodes.length}, Edges: ${edges.length}</div>
+      <div style="margin-top:8px">
+        <strong>Works</strong>
+        <ul>${lis || '<li>No works.</li>'}</ul>
+      </div>`;
+  }
+
+  function escape(s) {
+    return String(s).replace(/[&<>"']/g, m => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[m] || ''));
   }
 
   // D3 rendering — stabilized (from VIZ-002)
@@ -359,7 +387,13 @@ export default function Graph() {
         .on('start', (event,d)=>{ if(!event.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
         .on('drag', (event,d)=>{ d.fx=event.x; d.fy=event.y; })
         .on('end',   (event,d)=>{ if(!event.active) sim.alphaTarget(0); d.fx=null; d.fy=null; })
-      );
+      )
+      .on('click', (evt,d) => {
+        if (d.type === 'work') {
+          const href = d.url || scholarFallback(d);
+          window.open(href, '_blank', 'noopener');
+        }
+      });
 
     nodeG.append('title').text(d => d.label);
 
