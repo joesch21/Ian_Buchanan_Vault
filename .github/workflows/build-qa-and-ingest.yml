@@ -1,0 +1,51 @@
+name: Build QA feed & Ingest
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "qa/**"
+      - ".scripts/build-qa.mjs"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build qa-feed.json
+        run: node .scripts/build-qa.mjs
+
+      - name: Commit qa-feed.json (if changed)
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(qa): rebuild qa-feed.json"
+          file_pattern: "qa-feed.json"
+
+      - name: Trigger ingest (only when feed present)
+        if: ${{ hashFiles('qa-feed.json') != '' }}
+        env:
+          INGEST_URL: ${{ secrets.INGEST_URL }}           # e.g. https://code-crafter2-ay6w.onrender.com/api/know/v1/ingest
+          HMAC_SECRET: ${{ secrets.HMAC_SECRET }}         # same one your backend expects
+          SITE_ID: ${{ secrets.SITE_ID }}                 # buchanan-vault
+        run: |
+          BODY=$(jq -nc --arg sid "$SITE_ID" '{siteId:$sid, forceFull:true}')
+          SIG=$(printf %s "$BODY" | openssl dgst -sha256 -hmac "$HMAC_SECRET" -binary | base64)
+          curl -sS -X POST "$INGEST_URL" \
+            -H "Content-Type: application/json" \
+            -H "X-Site-Id: $SITE_ID" \
+            -H "X-Signature: $SIG" \
+            -d "$BODY" \
+            -o /tmp/ingest.json -w "\n%{http_code}\n" | tee /tmp/resp.txt
+          CODE=$(tail -n1 /tmp/resp.txt)
+          echo "HTTP $CODE"
+          test "$CODE" = "200" || (echo "Ingest failed"; cat /tmp/ingest.json; exit 1)
