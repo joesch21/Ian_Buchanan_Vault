@@ -4,3 +4,10 @@
   border: 1px solid #eee;
   border-radius: 8px;
 }
+
+.askrow .preset-row { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+.askrow .preset-row button { padding:6px 10px; border-radius:8px; border:1px solid #ddd; background:#fff; cursor:pointer; }
+.askrow .askinput { display:flex; gap:8px; }
+.askrow input { flex:1; padding:10px; border:1px solid #ddd; border-radius:8px; }
+.askrow button { padding:10px 12px; border-radius:8px; border:0; background:var(--brand-accent,#C7A43A); color:#000; font-weight:700; }
+.note { margin-top:8px; color:#666; }
