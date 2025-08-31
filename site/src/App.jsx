@@ -5,6 +5,7 @@ import Compare from './pages/Compare.jsx';
 import About from './pages/About.jsx';
 import Graph from './pages/Graph.jsx';
 import Trainer from './pages/Trainer.jsx';
+import Instructions from './pages/Instructions.jsx';
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/graph" element={<Graph />} />
         <Route path="/trainer" element={<Trainer />} />
         <Route path="/about" element={<About />} />
+        <Route path="/instructions" element={<Instructions />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
