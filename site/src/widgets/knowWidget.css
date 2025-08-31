@@ -13,3 +13,9 @@
 .kb-form{ display:flex; gap:8px; padding:10px; border-top:1px solid rgba(255,255,255,.1);}
 .kb-input{ flex:1; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,.2); background:#0002; color:var(--kb-fg);}
 .kb-send{ padding:8px 12px; border-radius:8px; border:0; background:var(--kb-accent); color:#000; font-weight:700; cursor:pointer;}
+/* header actions layout */
+.kb-head-actions { display:flex; gap:6px; }
+.kb-head .kb-min, .kb-head .kb-close{
+  background:transparent; border:0; color:var(--kb-fg); font-size:18px; cursor:pointer; line-height:1;
+}
+.kb-head .kb-min:hover, .kb-head .kb-close:hover { opacity:.85; }
