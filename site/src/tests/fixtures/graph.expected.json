@@ -1,0 +1,24 @@
+{
+  "nodes": [
+    { "id": "concept:assemblage", "type": "concept", "label": "assemblage", "code": "#ASS" },
+    { "id": "concept:affect", "type": "concept", "label": "affect", "code": "#AFF" },
+    { "id": "IB:put1", "type": "work", "label": "Assemblage and the Everyday", "year": 2015, "url": "https://doi.org/10.0000/assemblage-everyday", "code": "AA-15" },
+    { "id": "0000-0002-1825-0097", "type": "author", "label": "Ian Buchanan", "orcid": "0000-0002-1825-0097", "code": "IB" },
+    { "id": "BM:put2", "type": "work", "label": "Parables for the Virtual: Movement, Affect, Sensation", "year": 2002, "url": "https://doi.org/10.0000/parables-virtual", "code": "PF-02" },
+    { "id": "0000-0002-4384-3615", "type": "author", "label": "Brian Massumi", "orcid": "0000-0002-4384-3615", "code": "BM" }
+  ],
+  "edges": [
+    { "source": "0000-0002-1825-0097", "target": "IB:put1", "kind": "authored" },
+    { "source": "concept:assemblage", "target": "IB:put1", "kind": "concept" },
+    { "source": "0000-0002-4384-3615", "target": "BM:put2", "kind": "authored" },
+    { "source": "concept:affect", "target": "BM:put2", "kind": "concept" }
+  ],
+  "refs": {
+    "#ASS": [
+      { "title": "Assemblage and the Everyday", "url": "https://doi.org/10.0000/assemblage-everyday", "year": 2015 }
+    ],
+    "#AFF": [
+      { "title": "Parables for the Virtual: Movement, Affect, Sensation", "url": "https://doi.org/10.0000/parables-virtual", "year": 2002 }
+    ]
+  }
+}
