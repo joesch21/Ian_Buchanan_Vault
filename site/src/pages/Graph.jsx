@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
+import ChipSelect from '@/components/ChipSelect';
+import '@/components/chipSelect.css';
 
 // ---------- helpers ----------
 const fmt = (x) => (x ?? '').toString();
@@ -79,6 +81,41 @@ function buildBipartite(rows) {
     links.push({ source: aId, target: wId, title: r.title || '(untitled)', year: r.year || '' });
   }
   return { nodes: [...nodes.values()], links };
+}
+
+// Wrapper to apply scholar/concept filters before delegating to builders
+function buildGraph({
+  rows,
+  mode,
+  minFreq = 2,
+  yearMin = -Infinity,
+  yearMax = Infinity,
+  focusOrcid = '',
+  filterScholarIds = [],
+  filterConceptTags = []
+}) {
+  let filtered = rows;
+
+  if (filterScholarIds.length) {
+    const sset = new Set(filterScholarIds);
+    filtered = filtered.filter(r => sset.has(r.author_orcid));
+  }
+
+  if (filterConceptTags.length) {
+    const cset = new Set(filterConceptTags.map(t => t.toLowerCase()));
+    filtered = filtered.filter(r => {
+      const terms = extractConcepts(r.title, r.journal_or_publisher);
+      return terms.some(t => cset.has(t));
+    });
+  }
+
+  if (mode === 'bipartite') return buildBipartite(filtered);
+  if (mode === 'cowork') return buildAuthorCoWork(filtered);
+  const yMin = Number(yearMin);
+  const yMax = Number(yearMax);
+  const ym = Number.isFinite(yMin) ? yMin : -Infinity;
+  const yx = Number.isFinite(yMax) ? yMax : Infinity;
+  return buildTripartite(filtered, minFreq, ym, yx, focusOrcid);
 }
 
 function buildAuthorCoWork(rows) {
@@ -201,7 +238,8 @@ export default function Graph() {
   const [yearMin, setYearMin] = useState('');
   const [yearMax, setYearMax] = useState('');
 
-  // NEW: UI filters
+  const [scholars, setScholars] = useState([]); // options
+  const [concepts, setConcepts] = useState([]);
   const [selScholars, setSelScholars] = useState([]);   // array of ORCID strings
   const [selConcepts, setSelConcepts] = useState([]);   // array of concept strings
 
@@ -211,45 +249,27 @@ export default function Graph() {
   const { w, h } = useResize(wrapRef);
 
   const graph = useMemo(() => {
-    if (!rows.length) return { nodes:[], links:[] };
-    if (mode === 'bipartite') return buildBipartite(rows);
-    if (mode === 'cowork')    return buildAuthorCoWork(rows);
-    // tripartite
-    const yMin = Number(yearMin); const yMax = Number(yearMax);
-    const ym = Number.isFinite(yMin) ? yMin : -Infinity;
-    const yx = Number.isFinite(yMax) ? yMax : Infinity;
-    return buildTripartite(rows, Number(minFreq) || 2, ym, yx, focusOrcid.trim());
-  }, [rows, mode, minFreq, focusOrcid, yearMin, yearMax]);
+    if (!rows.length) return { nodes: [], links: [] };
+    return buildGraph({
+      rows,
+      mode,
+      minFreq: Number(minFreq) || 2,
+      yearMin,
+      yearMax,
+      focusOrcid: focusOrcid.trim(),
+      filterScholarIds: selScholars,
+      filterConceptTags: selConcepts
+    });
+  }, [rows, mode, minFreq, focusOrcid, yearMin, yearMax, selScholars, selConcepts]);
 
-  // Scholar dropdown options (unique ORCIDs from loaded rows)
-  const scholarOptions = useMemo(() => {
-    const s = Array.from(new Set(rows.map(r => r.author_orcid))).sort();
-    return s;
-  }, [rows]);
-
-  // Concept dropdown options (only meaningful in tripartite mode)
-  const conceptOptions = useMemo(() => {
-    if (mode !== 'tripartite' || !rows.length) return [];
-    // Reuse the same constraints used in buildTripartite
-    const yMin = Number(yearMin); const yMax = Number(yearMax);
-    const ym = Number.isFinite(yMin) ? yMin : -Infinity;
-    const yx = Number.isFinite(yMax) ? yMax : Infinity;
-
-    // lightweight recount with same logic as tallyConcepts + minFreq filter
-    const counts = new Map();
-    for (const r of rows) {
-      const yy = Number(r.year);
-      if (Number.isFinite(yy) && (yy < ym || yy > yx)) continue;
-      const terms = extractConcepts(r.title, r.journal_or_publisher);
-      for (const t of new Set(terms)) {
-        counts.set(t, (counts.get(t)||0)+1);
-      }
-    }
-    return Array.from(counts.entries())
-      .filter(([,n]) => n >= (Number(minFreq)||2))
-      .map(([k]) => k)
-      .sort();
-  }, [rows, mode, minFreq, yearMin, yearMax]);
+  useEffect(() => {
+    (async () => {
+      const s = await fetch('/data/scholars.json').then(r => r.json()).catch(() => []);
+      const c = await fetch('/data/concepts.json').then(r => r.json()).catch(() => []);
+      setScholars((s || []).map((x) => ({ value: x.id || x.orcid || x.value, label: x.name || x.label || x.id })));
+      setConcepts((c || []).map((t) => ({ value: t, label: t.replace(/-/g, ' ') })));
+    })();
+  }, []);
 
   async function fetchAll() {
     try {
@@ -289,28 +309,6 @@ export default function Graph() {
     svg.selectAll('*').remove();
 
     const { nodes, links } = graph;
-    // Compute focus sets from UI filters
-    const scholarFocus = new Set(selScholars);
-    const conceptFocus = new Set(selConcepts);
-
-    // Tag nodes that match filters (direct focus)
-    nodes.forEach(n => {
-      n.focus = false;
-      if (n.type === 'author' && scholarFocus.has(n.label)) n.focus = true;
-      if (n.type === 'concept' && conceptFocus.has(n.label)) n.focus = true;
-    });
-
-    // If any focus active, softly expand to 1-hop neighbors
-    if (scholarFocus.size || conceptFocus.size) {
-      const marked = new Set(nodes.filter(n => n.focus).map(n => n.id));
-      links.forEach(l => {
-        if (marked.has(l.source.id)) marked.add(l.target.id);
-        if (marked.has(l.target.id)) marked.add(l.source.id);
-      });
-      nodes.forEach(n => { n.near = marked.has(n.id); });
-    } else {
-      nodes.forEach(n => { n.near = true; });
-    }
 
     svg.attr('viewBox', [0, 0, w, h]).attr('width', '100%').attr('height', h);
 
@@ -329,7 +327,7 @@ export default function Graph() {
       .attr('stroke', '#cfcfd6')
       .selectAll('line').data(links).enter().append('line')
       .attr('stroke-width', d => Math.max(1, d.weight ? Math.sqrt(d.weight) : 1))
-      .attr('stroke-opacity', () => (scholarFocus.size || conceptFocus.size) ? 0.25 : 0.8);
+      .attr('stroke-opacity', 0.8);
 
     const color = (d) => d.type === 'author' ? '#1f77b4' : d.type === 'concept' ? '#b8860b' : '#6e6e6e';
     const radius = (d) => d.type === 'author' ? 8 : d.type === 'concept' ? 7 : 5;
@@ -340,11 +338,6 @@ export default function Graph() {
       .attr('fill', color)
       .attr('stroke', d => d.focus ? '#111' : '#fff')
       .attr('stroke-width', d => d.focus ? 2 : 1.2)
-      .attr('opacity', d => {
-        // de-emphasize non-near nodes when filters are active
-        if (scholarFocus.size || conceptFocus.size) return d.near ? 1 : 0.15;
-        return 1;
-      })
       .call(d3.drag()
         .on('start', (event,d)=>{ if(!event.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
         .on('drag', (event,d)=>{ d.fx=event.x; d.fy=event.y; })
@@ -383,7 +376,7 @@ export default function Graph() {
     document.addEventListener('visibilitychange', onVis);
 
     return () => { document.removeEventListener('visibilitychange', onVis); sim.stop(); };
-  }, [graph, w, h, selScholars, selConcepts]);
+  }, [graph, w, h]);
 
   // Kick re-center when container size changes
   useEffect(() => { resizeRef.current?.(); }, [w, h]);
@@ -452,36 +445,21 @@ export default function Graph() {
           </div>
         )}
 
-        {/* NEW: Scholar & Concept filters */}
-        <div style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'center'}}>
-          <label>Scholar filter
-            <select
-              multiple
-              value={selScholars}
-              onChange={(e)=> setSelScholars(Array.from(e.target.selectedOptions).map(o=>o.value))}
-              style={{minWidth:240, marginLeft:6, padding:'4px 6px'}}
-            >
-              {scholarOptions.map(id => <option key={id} value={id}>{id}</option>)}
-            </select>
-          </label>
-
-          <label>Concept filter
-            <select
-              multiple
-              value={selConcepts}
-              onChange={(e)=> setSelConcepts(Array.from(e.target.selectedOptions).map(o=>o.value))}
-              disabled={mode!=='tripartite'}
-              style={{minWidth:240, marginLeft:6, padding:'4px 6px'}}
-            >
-              {conceptOptions.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </label>
-
-          {(selScholars.length || selConcepts.length) && (
-            <button className="btn" onClick={()=>{ setSelScholars([]); setSelConcepts([]); }}>
-              Clear filters
-            </button>
-          )}
+        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'16px', alignItems:'end', margin:'12px 0 8px'}}>
+          <ChipSelect
+            label="Scholar filter"
+            options={scholars}
+            selected={selScholars}
+            onChange={setSelScholars}
+            placeholder="Search scholars…"
+          />
+          <ChipSelect
+            label="Concept filter"
+            options={concepts}
+            selected={selConcepts}
+            onChange={setSelConcepts}
+            placeholder="Search Deleuzian concepts…"
+          />
         </div>
 
         {error && <p style={{color:'crimson'}}>Error: {error}</p>}
