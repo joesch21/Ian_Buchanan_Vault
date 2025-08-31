@@ -19,3 +19,8 @@
   background:transparent; border:0; color:var(--kb-fg); font-size:18px; cursor:pointer; line-height:1;
 }
 .kb-head .kb-min:hover, .kb-head .kb-close:hover { opacity:.85; }
+
+/* Ensure the panel actually hides when `hidden` is set */
+.kb-panel[hidden] {
+  display: none !important;
+}

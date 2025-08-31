@@ -116,6 +116,7 @@ export class KnowWidget {
     this.isOpen = true;
     this.openScrollY = window.scrollY;
     sessionStorage.setItem(KB_STATE_KEY, "true");
+    this.fab?.setAttribute("aria-expanded", String(this.isOpen));
     // focus input without jumping viewport on mobile
     setTimeout(() => this.input?.focus({ preventScroll: true }), 0);
   }
@@ -125,6 +126,7 @@ export class KnowWidget {
     this.panel.hidden = true;
     this.isOpen = false;
     sessionStorage.setItem(KB_STATE_KEY, "false");
+    this.fab?.setAttribute("aria-expanded", String(this.isOpen));
   }
 
   private appendUser(t: string) { this.addMsg(t, "kb-user"); }
