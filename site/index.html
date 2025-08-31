@@ -5,9 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bibliography</title>
+    <link rel="stylesheet" href="/knowbot/knowbot.css" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script defer src="/knowbot/knowbot.min.js"></script>
+    <script>
+      window.KnowBot.init({
+        siteId: (window?.importMeta?.env?.VITE_KNOW_SITE_ID) || "buchanan-vault",
+        api: (window?.importMeta?.env?.VITE_KNOW_API_BASE) || "https://<render-app>.onrender.com/api/know/v1"
+      });
+    </script>
   </body>
 </html>
