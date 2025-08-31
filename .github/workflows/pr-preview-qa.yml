@@ -1,0 +1,21 @@
+name: PR Preview QA feed
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - "qa/**"
+      - ".scripts/build-qa.mjs"
+
+jobs:
+  build-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node .scripts/build-qa.mjs
+      - name: Upload qa-feed.json artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-feed.json
+          path: qa-feed.json
