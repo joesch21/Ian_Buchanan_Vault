@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import ChipSelect from '@/components/ChipSelect';
+import ScholarsSelect from '@/components/ScholarsSelect';
 import '@/components/chipSelect.css';
 
 // ---------- helpers ----------
@@ -238,12 +239,12 @@ export default function Graph() {
   const [yearMin, setYearMin] = useState('');
   const [yearMax, setYearMax] = useState('');
 
-  const [scholars, setScholars] = useState([]); // options
   const [concepts, setConcepts] = useState([]);
-  const [selScholars, setSelScholars] = useState([]);   // array of ORCID strings
+  const [selScholars, setSelScholars] = useState(['0000-0002-1825-0097']);   // array of ORCID strings
   const [selConcepts, setSelConcepts] = useState([]);   // array of concept strings
 
   const svgRef = useRef(null);
+  const canvasRef = useRef(null);
   const wrapRef = useRef(null);
   const resizeRef = useRef(null);
   const { w, h } = useResize(wrapRef);
@@ -264,17 +265,14 @@ export default function Graph() {
 
   useEffect(() => {
     (async () => {
-      const s = await fetch('/data/scholars.json').then(r => r.json()).catch(() => []);
       const c = await fetch('/data/concepts.json').then(r => r.json()).catch(() => []);
-      setScholars((s || []).map((x) => ({ value: x.id || x.orcid || x.value, label: x.name || x.label || x.id })));
       setConcepts((c || []).map((t) => ({ value: t, label: t.replace(/-/g, ' ') })));
     })();
   }, []);
 
-  async function fetchAll() {
+  async function fetchAll(ids) {
     try {
       setLoading(true); setError(''); setRows([]);
-      const ids = orcids.split(',').map(s=>s.trim()).filter(Boolean);
       if (!ids.length) throw new Error('Enter at least one ORCID.');
       let all = [];
       for (const id of ids) {
@@ -301,6 +299,16 @@ export default function Graph() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function compileGraph() {
+    const manual = orcids.split(',').map(s=>s.trim()).filter(Boolean);
+    const allOrcids = Array.from(new Set([...manual, ...selScholars]));
+    setOrcids(allOrcids.join(', '));
+    await fetchAll(allOrcids);
+    setTimeout(() => {
+      canvasRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
   }
 
   // D3 rendering — stabilized (from VIZ-002)
@@ -382,13 +390,9 @@ export default function Graph() {
   useEffect(() => { resizeRef.current?.(); }, [w, h]);
 
   function useExamples() {
-    const examples = [
-      '0000-0003-4864-6495',
-      '0000-0001-2345-6789',
-      '0000-0002-9876-5432'
-    ].join(', ');
-    setOrcids(examples);
-    fetchAll();
+    setOrcids('0000-0002-1825-0097, 0000-0002-4384-3615, 0000-0001-6813-7053');
+    setSelScholars(['0000-0002-1825-0097','0000-0002-4384-3615','0000-0001-6813-7053']);
+    setSelConcepts(['assemblage','affect']);
   }
 
   return (
@@ -406,7 +410,7 @@ export default function Graph() {
           />
         </label>
         <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
-          <button className="btn primary" onClick={fetchAll} disabled={loading}>
+          <button className="btn primary" onClick={compileGraph} disabled={loading}>
             {loading ? 'Loading…' : 'Build graph'}
           </button>
           <button className="btn" type="button" onClick={useExamples}>Use examples</button>
@@ -446,13 +450,7 @@ export default function Graph() {
         )}
 
         <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'16px', alignItems:'end', margin:'12px 0 8px'}}>
-          <ChipSelect
-            label="Scholar filter"
-            options={scholars}
-            selected={selScholars}
-            onChange={setSelScholars}
-            placeholder="Search scholars…"
-          />
+          <ScholarsSelect selected={selScholars} onChange={setSelScholars} />
           <ChipSelect
             label="Concept filter"
             options={concepts}
@@ -462,14 +460,21 @@ export default function Graph() {
           />
         </div>
 
+        <div style={{marginTop:12}}>
+          <button className="btn primary" onClick={compileGraph} style={{fontWeight:700}}>Compile</button>
+          <small style={{marginLeft:8, opacity:.7}}>Builds graph with all current selections</small>
+        </div>
+
         {error && <p style={{color:'crimson'}}>Error: {error}</p>}
       </div>
 
+    <div ref={canvasRef} id="graph-canvas" style={{minHeight:420, marginTop:20}}>
       <svg ref={svgRef} role="img" aria-label="Rhizome graph" />
-      <p style={{opacity:.7,marginTop:8}}>
-        Tip: drag nodes to adjust; pinch/scroll to zoom. Layout settles automatically. In Tripartite mode, raise “Min concept freq” to de-noise.
-      </p>
     </div>
-  );
+    <p style={{opacity:.7,marginTop:8}}>
+      Tip: drag nodes to adjust; pinch/scroll to zoom. Layout settles automatically. In Tripartite mode, raise “Min concept freq” to de-noise.
+    </p>
+  </div>
+);
 }
 
