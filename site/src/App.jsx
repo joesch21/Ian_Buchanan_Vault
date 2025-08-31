@@ -4,6 +4,7 @@ import Bibliography from './pages/Bibliography.jsx';
 import Compare from './pages/Compare.jsx';
 import About from './pages/About.jsx';
 import Graph from './pages/Graph.jsx';
+import Trainer from './pages/Trainer.jsx';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <NavLink to="/bibliography" className={({isActive}) => isActive ? 'active' : ''}>Bibliography</NavLink>{' | '}
         <NavLink to="/compare" className={({isActive}) => isActive ? 'active' : ''}>Compare</NavLink>{' | '}
         <NavLink to="/graph" className={({isActive}) => isActive ? 'active' : ''}>Graph</NavLink>{' | '}
+        <NavLink to="/trainer" className={({isActive}) => isActive ? 'active' : ''}>Trainer</NavLink>{' | '}
         <NavLink to="/about" className={({isActive}) => isActive ? 'active' : ''}>About</NavLink>
       </nav>
 
@@ -22,6 +24,7 @@ export default function App() {
         <Route path="/bibliography" element={<Bibliography />} />
         <Route path="/compare" element={<Compare />} />
         <Route path="/graph" element={<Graph />} />
+        <Route path="/trainer" element={<Trainer />} />
         <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
