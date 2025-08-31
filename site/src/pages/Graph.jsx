@@ -3,6 +3,8 @@ import * as d3 from 'd3';
 import ChipSelect from '@/components/ChipSelect';
 import ScholarsSelect from '@/components/ScholarsSelect';
 import '@/components/chipSelect.css';
+import { fetchWorksByOrcids } from '@/lib/biblio';
+import '/styles/graph.css';
 
 // ---------- helpers ----------
 const fmt = (x) => (x ?? '').toString();
@@ -11,22 +13,6 @@ const workKey = (row) => {
   const doi = fmt(row.doi).toLowerCase();
   return doi ? `doi:${doi}` : `ty:${norm(row.title)}|${fmt(row.year)}`;
 };
-
-async function fetchCSV(orcid) {
-  const url = `/data/${orcid}.csv`;
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error('csv not found');
-  const txt = await resp.text();
-  const [head, ...lines] = txt.trim().split('\n');
-  const headers = head.split(',').map(h => h.replace(/^"|"$/g,''));
-  return lines.map(line => {
-    const cols = line.match(/("([^"]|"")*"|[^,]+)/g) || [];
-    const o = {};
-    headers.forEach((h,i)=> o[h] = (cols[i]||'').replace(/^"|"$/g,'').replace(/""/g,'"'));
-    o.author_orcid = o.author_orcid || orcid;
-    return o;
-  });
-}
 
 // --- concept extraction (naïve but effective) ---
 const STOP = new Set([
@@ -270,45 +256,68 @@ export default function Graph() {
     })();
   }, []);
 
-  async function fetchAll(ids) {
+  async function compileGraph() {
+    const manual = orcids.split(',').map(s=>s.trim()).filter(Boolean);
+    const allOrcids = Array.from(new Set([...manual, ...selScholars]));
+    if (!allOrcids.length) { alert('Add at least one ORCID.'); return; }
+
+    setLoading(true); setError('');
     try {
-      setLoading(true); setError(''); setRows([]);
-      if (!ids.length) throw new Error('Enter at least one ORCID.');
-      let all = [];
-      for (const id of ids) {
-        try {
-          const csvRows = await fetchCSV(id).catch(()=>null);
-          if (csvRows?.length) {
-            all = all.concat(csvRows);
-          } else {
-            const j = await fetch(`/api/orcid?orcid=${encodeURIComponent(id)}`).then(r=>r.json());
-            if (j?.ok && Array.isArray(j.rows)) {
-              const mapped = j.rows.map(r => ({
-                author_orcid:id,
-                title:r.title||'', year:r.year||'', type:r.type||'',
-                journal_or_publisher:r.journal_or_publisher||'', doi:r.doi||'', url:r.url||''
-              }));
-              all = all.concat(mapped);
-            }
-          }
-        } catch { /* skip one author on failure */ }
+      const raw = await fetchWorksByOrcids(allOrcids);
+
+      const yrMin = Number(yearMin) || -Infinity;
+      const yrMax = Number(yearMax) || Infinity;
+      const tagSet = new Set(selConcepts.map(s => s.toLowerCase().trim()));
+
+      let works = raw
+        .filter(w => (w.year ?? 0) >= yrMin && (w.year ?? 0) <= yrMax)
+        .filter(w => tagSet.size === 0 || (w.concepts || []).some(t => tagSet.has(String(t).toLowerCase())));
+
+      if (!works.length) {
+        setRows([]);
+        setTimeout(() => renderEmpty('No results: try clearing filters or widening years.'), 0);
+        return;
       }
-      setRows(all);
-    } catch(e) {
-      setError(String(e));
+
+      const rows = [];
+      for (const w of works) {
+        for (const a of w.authors) {
+          rows.push({
+            author_orcid: a.orcid || '',
+            title: w.title,
+            year: w.year || '',
+            journal_or_publisher: '',
+            doi: '',
+            url: ''
+          });
+        }
+      }
+
+      renderGraph({ nodes: rows, edges: [] });
+      setRows(rows);
+      setOrcids(allOrcids.join(', '));
+      setTimeout(() => {
+        canvasRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+      setRows([]);
+      setTimeout(() => renderEmpty(msg), 0);
     } finally {
       setLoading(false);
     }
   }
 
-  async function compileGraph() {
-    const manual = orcids.split(',').map(s=>s.trim()).filter(Boolean);
-    const allOrcids = Array.from(new Set([...manual, ...selScholars]));
-    setOrcids(allOrcids.join(', '));
-    await fetchAll(allOrcids);
-    setTimeout(() => {
-      canvasRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+  function renderEmpty(msg) {
+    const el = document.getElementById('graph-canvas');
+    if (el) el.innerHTML = `<div style="padding:16px;color:#666">${msg}</div>`;
+  }
+
+  function renderGraph({ nodes, edges }) {
+    const el = document.getElementById('graph-canvas');
+    if (!el) return;
+    el.innerHTML = `<div style="padding:8px;color:#666">Nodes: ${nodes.length}, Edges: ${edges.length}</div>`;
   }
 
   // D3 rendering — stabilized (from VIZ-002)
@@ -465,10 +474,21 @@ export default function Graph() {
           <small style={{marginLeft:8, opacity:.7}}>Builds graph with all current selections</small>
         </div>
 
+        <details style={{marginTop:'1em'}}>
+          <summary><strong>How it works</strong></summary>
+          <div style={{padding:'0.5em 1em'}}>
+            <p><b>Bipartite:</b> Authors linked to their works.</p>
+            <p><b>Author Co-work:</b> Shows co-author links only.</p>
+            <p><b>Tripartite:</b> Authors, works, and concepts all connected.</p>
+            <p>Use filters (scholar, concept, years) to focus the graph.</p>
+            <p>Press <b>Compile</b> to build with your selections.</p>
+          </div>
+        </details>
+
         {error && <p style={{color:'crimson'}}>Error: {error}</p>}
       </div>
 
-    <div ref={canvasRef} id="graph-canvas" style={{minHeight:420, marginTop:20}}>
+    <div ref={canvasRef} id="graph-canvas" style={{marginTop:20}}>
       <svg ref={svgRef} role="img" aria-label="Rhizome graph" />
     </div>
     <p style={{opacity:.7,marginTop:8}}>
