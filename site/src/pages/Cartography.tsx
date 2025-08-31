@@ -2,21 +2,28 @@ import React from "react";
 import CartographyAsk from "@/components/CartographyAsk";
 import { compileCartography } from "@/lib/cartography";
 import { renderForceGraph } from "@/lib/graphRender";
+import seedSpec from "@/tests/fixtures/spec.seed.json";
 import "@/styles/graph.css";
 
 export default function Cartography() {
   const [notice, setNotice] = React.useState("");
   const [graph, setGraph] = React.useState(null as any);
+  const [spec, setSpec] = React.useState<any>(null);
 
-  async function onSpec(spec:any) {
+  async function compileAndRender(s:any) {
     try {
       setNotice("Compiling…");
-      const gj = await compileCartography(spec);
+      const gj = await compileCartography(s);
       setNotice("");
       setGraph(gj);
     } catch (e:any) {
       setNotice(String(e));
     }
+  }
+
+  async function onSpec(s:any) {
+    setSpec(s);
+    await compileAndRender(s);
   }
 
   React.useEffect(() => {
@@ -30,6 +37,15 @@ export default function Cartography() {
       <h1>Scholarly Cartography</h1>
       <p>Describe what you want to map; the AI compiles a cartography and we render it as a graph.</p>
       <CartographyAsk onSpec={onSpec} />
+      <button
+        className="btn btn-secondary"
+        onClick={() => {
+          setSpec(seedSpec);
+          compileAndRender(seedSpec);
+        }}
+      >
+        Load Example
+      </button>
       {notice && <div className="note">{notice}</div>}
       <div id="graph-canvas" style={{minHeight:480, marginTop:12, border:"1px solid #eee", borderRadius:8}} />
       {graph && <RefsDrawer refs={graph.refs} />}

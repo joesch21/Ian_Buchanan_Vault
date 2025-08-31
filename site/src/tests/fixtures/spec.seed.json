@@ -1,0 +1,8 @@
+{
+  "mode": "concept_comparison",
+  "concepts": ["assemblage", "affect"],
+  "scholars": ["0000-0002-1825-0097", "0000-0002-4384-3615"],
+  "years": { "min": 2000, "max": 2015 },
+  "minConceptFreq": 1,
+  "notes": "Compare assemblage vs affect across Buchanan & Massumi, 2000–2015"
+}

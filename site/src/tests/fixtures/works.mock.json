@@ -1,0 +1,18 @@
+[
+  {
+    "id": "IB:put1",
+    "title": "Assemblage and the Everyday",
+    "year": 2015,
+    "authors": [{ "orcid": "0000-0002-1825-0097", "name": "Ian Buchanan" }],
+    "concepts": [],
+    "url": "https://doi.org/10.0000/assemblage-everyday"
+  },
+  {
+    "id": "BM:put2",
+    "title": "Parables for the Virtual: Movement, Affect, Sensation",
+    "year": 2002,
+    "authors": [{ "orcid": "0000-0002-4384-3615", "name": "Brian Massumi" }],
+    "concepts": [],
+    "url": "https://doi.org/10.0000/parables-virtual"
+  }
+]
