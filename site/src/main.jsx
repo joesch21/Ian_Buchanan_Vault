@@ -9,10 +9,13 @@ createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <App />
   </BrowserRouter>
-)
+);
 
+// --- Know widget mount (auto-added by CWO) ---
 (function mountKnow(){
   if (typeof window === "undefined") return;
+  if (window.__KNOW_WIDGET_MOUNTED__) return;
+  window.__KNOW_WIDGET_MOUNTED__ = true;
   window.addEventListener("DOMContentLoaded", () => {
     const host = document.createElement("div");
     document.body.appendChild(host);
