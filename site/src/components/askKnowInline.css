@@ -1,0 +1,13 @@
+.askknow { margin-top: 10px; }
+.askknow__row { display: flex; gap: 8px; }
+.askknow__input {
+  flex: 1; padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px;
+}
+.askknow__btn {
+  padding: 8px 12px; border: 0; border-radius: 8px; background: var(--brand-accent, #C7A43A);
+  color: #000; font-weight: 700; cursor: pointer;
+}
+.askknow__answer {
+  margin-top: 8px; padding: 10px 12px; border: 1px solid #eee; border-radius: 8px; background: #fafafa;
+  white-space: pre-wrap;
+}

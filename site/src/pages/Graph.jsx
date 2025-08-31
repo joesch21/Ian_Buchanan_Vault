@@ -4,7 +4,7 @@ import ChipSelect from '@/components/ChipSelect';
 import ScholarsSelect from '@/components/ScholarsSelect';
 import '@/components/chipSelect.css';
 import { fetchWorksByOrcids } from '@/lib/biblio';
-import '/styles/graph.css';
+import '@/styles/graph.css';
 
 // ---------- helpers ----------
 const fmt = (x) => (x ?? '').toString();
@@ -472,6 +472,9 @@ export default function Graph() {
         <div style={{marginTop:12}}>
           <button className="btn primary" onClick={compileGraph} style={{fontWeight:700}}>Compile</button>
           <small style={{marginLeft:8, opacity:.7}}>Builds graph with all current selections</small>
+          <p style={{marginTop:8}}>
+            Need help? <a href="/instructions">Read the Instructions</a> or ask right there via Know.
+          </p>
         </div>
 
         <details style={{marginTop:'1em'}}>

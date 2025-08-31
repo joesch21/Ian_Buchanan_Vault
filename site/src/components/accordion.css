@@ -1,0 +1,11 @@
+.acc { border-top: 1px solid #e7e7e7; }
+.acc__item { border-bottom: 1px solid #e7e7e7; }
+.acc__btn {
+  width: 100%; text-align: left; background: #fff; border: 0; padding: 14px 12px;
+  display: flex; justify-content: space-between; align-items: center; font-weight: 700; cursor: pointer;
+}
+.acc__caret { transition: transform .2s ease; }
+.acc__item.is-open .acc__caret { transform: rotate(180deg); }
+.acc__panel { background: #fff; }
+.acc__inner { padding: 10px 12px 16px; }
+.highlight { color: #C7A43A; font-weight: 600; }
