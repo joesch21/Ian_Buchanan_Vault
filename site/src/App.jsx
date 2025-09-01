@@ -7,6 +7,7 @@ import Cartography from './pages/Cartography.tsx';
 import Trainer from './pages/Trainer.jsx';
 import Instructions from './pages/Instructions.jsx';
 import IanBuchanan from './pages/vaultpedia/IanBuchanan.jsx';
+import ReadingListPage from "@/pages/ReadingList";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         <NavLink to="/bibliography" className={({isActive}) => isActive ? 'active' : ''}>Bibliography</NavLink>{' | '}
         <NavLink to="/compare" className={({isActive}) => isActive ? 'active' : ''}>Compare</NavLink>{' | '}
         <NavLink to="/cartography" className={({isActive}) => isActive ? 'active' : ''}>Cartography</NavLink>{' | '}
+        <NavLink to="/reading-list" className={({isActive}) => isActive ? 'active' : ''}>Reading List</NavLink>{' | '}
         <NavLink to="/instructions" className={({isActive}) => isActive ? 'active' : ''}>Instructions</NavLink>{' | '}
         <NavLink to="/trainer" className={({isActive}) => isActive ? 'active' : ''}>Trainer</NavLink>{' | '}
         <NavLink to="/about" className={({isActive}) => isActive ? 'active' : ''}>About</NavLink>
@@ -27,6 +29,7 @@ export default function App() {
         <Route path="/bibliography" element={<Bibliography />} />
         <Route path="/compare" element={<Compare />} />
         <Route path="/cartography" element={<Cartography />} />
+        <Route path="/reading-list" element={<ReadingListPage />} />
         <Route path="/graph" element={<Navigate to="/cartography" replace />} />
         <Route path="/trainer" element={<Trainer />} />
         <Route path="/about" element={<About />} />
