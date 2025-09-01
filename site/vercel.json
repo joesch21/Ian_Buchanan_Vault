@@ -9,5 +9,8 @@
       "source": "/robots.txt",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600" }]
     }
-  ]
+  ],
+  "functions": {
+    "api/og/*.jsx": { "runtime": "edge" }
+  }
 }
