@@ -6,6 +6,7 @@
 // - Drop-in ready for Vite/React. Ensure your router points this path to <IanBuchanan />.
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Helmet } from "react-helmet";
 import "./IanBuchanan.css";
 
 function askKnow(msg) {
@@ -118,6 +119,16 @@ export default function IanBuchanan() {
 
   return (
     <div className="ib-page">
+      <Helmet>
+        <meta
+          property="og:image"
+          content="https://your-app.vercel.app/api/og/ian-buchanan"
+        />
+        <meta
+          name="twitter:image"
+          content="https://your-app.vercel.app/api/og/ian-buchanan"
+        />
+      </Helmet>
       <Breadcrumbs />
 
       <header className="ib-header">

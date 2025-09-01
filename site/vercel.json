@@ -1,3 +1,4 @@
 {
+  "experimental": { "edge": true },
   "rewrites": [{ "source": "/(.*)", "destination": "/" }]
 }
