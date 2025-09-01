@@ -1,5 +1,4 @@
-// Force edge runtime at the file level (belt & suspenders)
-export const config = { runtime: 'edge' };
+export const runtime = 'edge';
 
 import { ImageResponse } from '@vercel/og';
 
