@@ -6,6 +6,7 @@
 // - Drop-in ready for Vite/React. Ensure your router points this path to <IanBuchanan />.
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import "./IanBuchanan.css";
 
 function askKnow(msg) {
@@ -36,7 +37,8 @@ const sections = [
   { id: "reception-influence", label: "4. Reception & Influence" },
   { id: "conceptual-contributions", label: "5. Conceptual Contributions" },
   { id: "selected-talks", label: "6. Selected Talks & YouTube" },
-  { id: "references", label: "7. References" },
+  { id: "faq", label: "7. FAQ" },
+  { id: "references", label: "8. References" },
 ];
 
 function useActiveSection(sectionIds) {
@@ -116,22 +118,90 @@ export default function IanBuchanan() {
     { id: "6P4DT1cJkCE", title: "Assemblage Theory as the Engine that Drives Schizoanalysis (Buchanan channel)" },
   ];
 
+  const faq = [
+    {
+      q: "What is Ian Buchanan known for?",
+      a: "He is a scholar of Deleuze and Guattari, noted for work on assemblage theory and schizoanalysis.",
+    },
+    {
+      q: "Where does he teach?",
+      a: "Buchanan is a professor in the School of Humanities and Social Inquiry at the University of Wollongong.",
+    },
+  ];
+
+  const personJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Ian Buchanan",
+    url: "https://en.wikipedia.org/wiki/Ian_Buchanan_(academic)",
+    sameAs: [
+      "https://scholars.uow.edu.au/ian-buchanan",
+      "https://www.youtube.com/@ianbuchanan3199"
+    ],
+    jobTitle: "Professor of Cultural Studies",
+  };
+
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  };
+
   return (
-    <div className="ib-page">
-      <Breadcrumbs />
+    <>
+      <Helmet>
+        <title>Ian Buchanan – VaultPedia</title>
+        <meta
+          name="description"
+          content="Expanded profile of Ian Buchanan with biography, works, and talks."
+        />
+        <meta
+          name="keywords"
+          content="Ian Buchanan, Deleuze, Guattari, assemblage theory, schizoanalysis"
+        />
+        <meta property="og:title" content="Ian Buchanan – VaultPedia" />
+        <meta
+          property="og:description"
+          content="Expanded profile of Ian Buchanan with biography, works, and talks."
+        />
+        <meta property="og:type" content="profile" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Ian Buchanan – VaultPedia" />
+        <meta
+          name="twitter:description"
+          content="Expanded profile of Ian Buchanan with biography, works, and talks."
+        />
+        <script type="application/ld+json">
+          {JSON.stringify(personJsonLd)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(faqJsonLd)}
+        </script>
+      </Helmet>
 
-      <header className="ib-header">
-        <h1>VaultPedia: Ian Buchanan</h1>
-        <p className="ib-subtitle">
-          A curated, expanded “Wikipedia‑style” entry inside the Ian Buchanan Vault: biography, works, reception,
-          conceptual contributions, and selected talks.
-        </p>
-      </header>
+      <div className="ib-page">
+        <Breadcrumbs />
 
-      <div className="ib-layout">
-        <TOC sections={sections} />
+        <header className="ib-header">
+          <h1>VaultPedia: Ian Buchanan</h1>
+          <p className="ib-subtitle">
+            A curated, expanded “Wikipedia‑style” entry inside the Ian Buchanan Vault: biography, works, reception,
+            conceptual contributions, and selected talks.
+          </p>
+          <p className="ib-links">
+            Explore his <a href="/cartography">cartography</a>, <a href="/bibliography">bibliography</a>, and{" "}
+            <a href="/reading-list">reading list</a>.
+          </p>
+        </header>
 
-        <main className="ib-content">
+        <div className="ib-layout">
+          <TOC sections={sections} />
+
+          <main className="ib-content">
           {/* 1. Biography */}
           <section id="biography" className="ib-section">
             <h2>1. Biography</h2>
@@ -250,9 +320,22 @@ export default function IanBuchanan() {
             </div>
           </section>
 
-          {/* 7. References */}
+          {/* 7. FAQ */}
+          <section id="faq" className="ib-section">
+            <h2>7. FAQ</h2>
+            <dl>
+              {faq.map((item) => (
+                <React.Fragment key={item.q}>
+                  <dt>{item.q}</dt>
+                  <dd>{item.a}</dd>
+                </React.Fragment>
+              ))}
+            </dl>
+          </section>
+
+          {/* 8. References */}
           <section id="references" className="ib-section">
-            <h2>7. References</h2>
+            <h2>8. References</h2>
             <div className="ib-actions">
               <button type="button" onClick={() => askKnow(prompts["references"])}>Ask Know about this section</button>
             </div>
@@ -302,6 +385,7 @@ export default function IanBuchanan() {
         </main>
       </div>
     </div>
+    </>
   );
 }
 

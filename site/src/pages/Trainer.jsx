@@ -106,7 +106,9 @@ export default function Trainer() {
         }
         if (a) setAnswer(a);
         if (t) setTags(Array.isArray(t) ? t.join(", ") : t);
-      } catch {}
+      } catch {
+        /* noop */
+      }
       sessionStorage.removeItem("trainer-draft");
     }
   }, []);
