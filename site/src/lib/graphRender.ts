@@ -1,7 +1,12 @@
 import * as d3 from "d3";
 import type { GraphJSON } from "@/lib/cartography";
 
-export function renderForceGraph(el: HTMLElement, nodes: GraphJSON["nodes"], edges: GraphJSON["edges"]) {
+export function renderForceGraph(
+  el: HTMLElement,
+  nodes: GraphJSON["nodes"],
+  edges: GraphJSON["edges"],
+  opts?: { onNodeClick?: (n: any) => void }
+) {
   const width = el.clientWidth || 600;
   const height = el.clientHeight || 480;
   const svg = d3.select(el).append("svg").attr("width", width).attr("height", height);
@@ -18,7 +23,7 @@ export function renderForceGraph(el: HTMLElement, nodes: GraphJSON["nodes"], edg
     .enter().append("line")
     .attr("stroke-width", 1.2);
 
-  const node = svg.append("g")
+  const gNodes = svg.append("g")
     .selectAll("g")
     .data(nodes)
     .enter().append("g")
@@ -36,12 +41,16 @@ export function renderForceGraph(el: HTMLElement, nodes: GraphJSON["nodes"], edg
       })
     );
 
-  node.append("circle")
-    .attr("r", 6)
-    .attr("fill", d => d.type === "author" ? "#C7A43A" : d.type === "concept" ? "#888" : "#69b" )
-    .on("click", (_evt, d:any) => { if (d.url) window.open(d.url, "_blank"); });
+  gNodes.on("click", (e:any, d:any) => {
+    opts?.onNodeClick?.(d);
+    e.stopPropagation();
+  });
 
-  node.append("text")
+  gNodes.append("circle")
+    .attr("r", 6)
+    .attr("fill", d => d.type === "author" ? "#C7A43A" : d.type === "concept" ? "#888" : "#69b" );
+
+  gNodes.append("text")
     .text(d => d.code || "")
     .attr("x", 8)
     .attr("y", 4)
@@ -54,7 +63,7 @@ export function renderForceGraph(el: HTMLElement, nodes: GraphJSON["nodes"], edg
       .attr("x2", (d:any) => (d.target as any).x)
       .attr("y2", (d:any) => (d.target as any).y);
 
-    node.attr("transform", (d:any) => `translate(${d.x},${d.y})`);
+    gNodes.attr("transform", (d:any) => `translate(${d.x},${d.y})`);
   });
 
   return () => { simulation.stop(); svg.remove(); };
