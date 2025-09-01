@@ -15,9 +15,11 @@
   background:#fff; border:1px solid #eee; border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,.12);
   padding:12px; z-index:1000; }
 .ni-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+.ni-pin{ border:0; background:none; font-size:16px; margin-right:6px; cursor:pointer; }
 .ni-x{ border:0; background:none; font-size:18px; cursor:pointer; }
 .ni-ask{ padding:8px 10px; border:0; border-radius:8px; background:var(--brand-accent,#C7A43A); color:#000; font-weight:700; }
 .ni-answer{ margin-top:8px; padding:8px 10px; background:#fafafa; border-radius:8px; }
+.ni-trainer{ margin-top:6px; padding:6px 10px; border:0; border-radius:6px; background:#444; color:#fff; font-size:13px; cursor:pointer; }
 .ni-refs{ margin-top:10px; }
 .ni-refs .ni-sub{ font-weight:700; margin-bottom:4px; }
 .ni-refs ul{ margin:0; padding-left:18px; }
