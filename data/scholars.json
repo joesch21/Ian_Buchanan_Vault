@@ -1,30 +1,27 @@
 [
+  {"name":"Ian Buchanan","orcid":"0000-0002-6797-3638","aliases":["Buchanan, Ian"],"sources":["https://orcid.org/0000-0002-6797-3638"]},
+  {"name":"Brian Massumi","orcid":"0000-0002-4384-3615","aliases":["Massumi, Brian"],"sources":["https://orcid.org/0000-0002-4384-3615"]},
   {
-    "name": "Ian Buchanan",
-    "orcid": "0000-0002-6797-3638",
-    "aliases": ["Buchanan"],
-    "works_hint": ["Onto-Cartography"],
-    "sources": ["https://en.wikipedia.org/wiki/Ian_Buchanan_(writer)"]
-  },
-  {
-    "name": "Brian Massumi",
-    "orcid": "0000-0002-4384-3615",
-    "aliases": ["Massumi"],
-    "works_hint": ["Parables for the Virtual"],
-    "sources": ["https://brianmassumi.com/"]
-  },
-  {
-    "name": "John Protevi",
-    "orcid": "0000-0003-1086-5660",
-    "aliases": ["Protevi"],
-    "works_hint": ["Life, War, Earth"],
-    "sources": ["https://www.lsu.edu/hss/philosophy/people/faculty/protevi_john.php"]
-  },
-  {
-    "name": "Manuel DeLanda",
+    "name":"Manuel DeLanda",
     "orcid": null,
-    "aliases": ["Manuel De Landa", "DeLanda"],
-    "works_hint": ["Assemblage Theory"],
-    "sources": ["https://en.wikipedia.org/wiki/Manuel_DeLanda"]
-  }
+    "aliases":["De Landa, Manuel","de Landa, Manuel","Manuel de Landa","Manuel De Landa","Manuel DeLanda"],
+    "sources":["https://pact.egs.edu/biography/manuel-delanda/","https://www.bloomsbury.com/uk/author/manuel-delanda/"]
+  },
+  {"name":"John Protevi","orcid":"0000-0003-1086-5660","aliases":["Protevi, John"],"sources":["https://orcid.org/0000-0003-1086-5660"]},
+
+  {"name":"Rosi Braidotti","orcid":"0000-0002-5922-2324","aliases":["Braidotti, Rosi"],"sources":["https://orcid.org/0000-0002-5922-2324"]},
+  {"name":"Claire Colebrook","orcid":"0000-0002-3487-0974","aliases":["Colebrook, Claire"],"sources":["https://orcid.org/0000-0002-3487-0974"]},
+  {"name":"Daniel W. Smith","orcid":"0000-0002-5867-9613","aliases":["Smith, Daniel W.","Smith, Daniel"],"sources":["https://orcid.org/0000-0002-5867-9613"]},
+  {"name":"Patricia Pisters","orcid":"0000-0003-2456-0822","aliases":["Pisters, Patricia"],"sources":["https://orcid.org/0000-0003-2456-0822"]},
+  {"name":"Keith Ansell-Pearson","orcid":"0000-0002-6171-8003","aliases":["Ansell-Pearson, Keith","Ansell Pearson, Keith"],"sources":["https://orcid.org/0000-0002-6171-8003"]},
+  {"name":"Henry Somers-Hall","orcid":"0000-0002-5137-0402","aliases":["Somers-Hall, Henry"],"sources":["https://orcid.org/0000-0002-5137-0402"]},
+  {"name":"Frida Beckman","orcid":"0009-0001-8808-5832","aliases":["Beckman, Frida"],"sources":["https://orcid.org/0009-0001-8808-5832"]},
+  {"name":"Jeffrey A. Bell","orcid":"0000-0003-3470-1043","aliases":["Bell, Jeffrey A.","Jeffrey Bell"],"sources":["https://orcid.org/0000-0003-3470-1043"]},
+  {"name":"Miguel de Beistegui","orcid":"0000-0001-8599-9308","aliases":["De Beistegui, Miguel","de Beistegui, Miguel"],"sources":["https://orcid.org/0000-0001-8599-9308"]},
+  {"name":"Gregg Lambert","orcid":"0000-0003-2808-4341","aliases":["Lambert, Gregg"],"sources":["https://orcid.org/0000-0003-2808-4341"]},
+  {"name":"James R. Williams","orcid":"0000-0003-2611-237X","aliases":["Williams, James R.","Williams, James"],"sources":["https://orcid.org/0000-0003-2611-237X"]},
+  {"name":"Anne Sauvagnargues","orcid":"0000-0001-6940-1134","aliases":["Sauvagnargues, Anne"],"sources":["https://orcid.org/0000-0001-6940-1134"]},
+  {"name":"Ronald Bogue","orcid": null,"aliases":["Bogue, Ronald"],"sources":["https://english.uga.edu/directory/people/ronald-bogue"]},
+  {"name":"Eugene Holland","orcid": null,"aliases":["Holland, Eugene W.","Holland, Eugene"],"sources":["https://comparativestudies.osu.edu/people/holland.1"]},
+  {"name":"Paul Patton","orcid": null,"aliases":["Patton, Paul"],"sources":["https://www.unsw.edu.au/staff/paul-patton"]}
 ]
