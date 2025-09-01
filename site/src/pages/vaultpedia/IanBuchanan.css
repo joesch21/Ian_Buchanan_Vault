@@ -48,3 +48,8 @@
 /* Footer */
 .ib-footer { color: var(--muted); font-size: .9rem; padding: 1rem 0; }
 
+/* Ask Know buttons */
+.ib-actions { margin: .25rem 0 .75rem; }
+.ib-actions button { font-size: .9rem; padding: .35rem .6rem; border: 1px solid var(--border); border-radius: 6px; background: rgba(255,255,255,0.03); color: var(--text); cursor: pointer; }
+.ib-actions button:hover { background: rgba(255,255,255,0.06); }
+
