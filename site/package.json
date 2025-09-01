@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@vercel/og": "^0.6.2",
     "fuse.js": "^7.1.0",
     "marked": "^16.2.1",
     "papaparse": "^5.5.3",
