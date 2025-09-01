@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Ian Buchanan",
+    "orcid": "0000-0002-6797-3638",
+    "aliases": ["Buchanan"],
+    "works_hint": ["Onto-Cartography"],
+    "sources": ["https://en.wikipedia.org/wiki/Ian_Buchanan_(writer)"]
+  },
+  {
+    "name": "Brian Massumi",
+    "orcid": "0000-0002-4384-3615",
+    "aliases": ["Massumi"],
+    "works_hint": ["Parables for the Virtual"],
+    "sources": ["https://brianmassumi.com/"]
+  },
+  {
+    "name": "John Protevi",
+    "orcid": "0000-0003-1086-5660",
+    "aliases": ["Protevi"],
+    "works_hint": ["Life, War, Earth"],
+    "sources": ["https://www.lsu.edu/hss/philosophy/people/faculty/protevi_john.php"]
+  },
+  {
+    "name": "Manuel DeLanda",
+    "orcid": null,
+    "aliases": ["Manuel De Landa", "DeLanda"],
+    "works_hint": ["Assemblage Theory"],
+    "sources": ["https://en.wikipedia.org/wiki/Manuel_DeLanda"]
+  }
+]

@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from routes.know_v1 import bp as know_bp
+from .routes.know_v1 import bp as know_bp
 import os
 
 app = Flask(__name__)
