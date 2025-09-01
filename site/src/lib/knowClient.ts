@@ -48,4 +48,48 @@ export class KnowClient {
     if (!r.ok) throw new Error(`groupDetail(${name}): ${r.status}`);
     return r.json();
   }
+
+  async catalogWorks(params: {
+    authors?: string[];
+    group?: string;
+    concepts?: string[];
+    ymin?: number;
+    ymax?: number;
+    limit?: number;
+  }): Promise<{ ok: boolean; works: any[] }> {
+    const qs = new URLSearchParams();
+    if (params.group) qs.set("group", params.group);
+    if (params.authors?.length) qs.set("authors", params.authors.join(","));
+    if (params.concepts?.length) qs.set("concepts", params.concepts.join(","));
+    if (params.ymin != null) qs.set("ymin", String(params.ymin));
+    if (params.ymax != null) qs.set("ymax", String(params.ymax));
+    if (params.limit != null) qs.set("limit", String(params.limit));
+    const r = await fetch(`${this.base}/catalog/works?` + qs.toString());
+    if (!r.ok) throw new Error(`catalogWorks(): ${r.status}`);
+    return r.json();
+  }
+
+  async readingListBuild(body: {
+    authors?: string[];
+    concepts?: string[];
+    group?: string;
+    ymin?: number;
+    ymax?: number;
+    maxItems?: number;
+    includeLineage?: boolean;
+  }): Promise<{
+    ok: boolean;
+    query: any;
+    works: any[];
+    insights?: { title: string; summary: string; citations?: any[] }[];
+    lineage?: { from: string; to: string; relation: string }[];
+  }> {
+    const r = await fetch(`${this.base}/reading-list/build`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) throw new Error(`readingListBuild(): ${r.status}`);
+    return r.json();
+  }
 }
