@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { fetchTrainerQuestions, generateNewQuestions } from "@/lib/trainerAdmin";
 
 const FALLBACK = [
@@ -67,6 +67,8 @@ export default function Trainer() {
   const [week, setWeek] = useState("");
   const [tags, setTags] = useState("assemblage, pedagogy");
   const [selected, setSelected] = useState(FALLBACK[0]);
+  const [answer, setAnswer] = useState("");
+  const draftRef = useRef(null);
 
   // Fetch dynamic questions on mount
   useEffect(() => {
@@ -76,8 +78,11 @@ export default function Trainer() {
         const data = await fetchTrainerQuestions();
         if (!cancelled && data?.items?.length) {
           const qs = data.items.map((x) => x.question);
+          if (draftRef.current?.q && !qs.includes(draftRef.current.q)) {
+            qs.unshift(draftRef.current.q);
+          }
           setQuestions(qs);
-          setSelected(qs[0] || FALLBACK[0]);
+          setSelected(draftRef.current?.q || qs[0] || FALLBACK[0]);
           setWeek(data.week || "");
         }
       } catch {
@@ -87,6 +92,23 @@ export default function Trainer() {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  useEffect(() => {
+    const d = sessionStorage.getItem("trainer-draft");
+    if (d) {
+      try {
+        const { q, a, tags: t } = JSON.parse(d);
+        draftRef.current = { q };
+        if (q) {
+          setQuestions((prev) => (prev.includes(q) ? prev : [q, ...prev]));
+          setSelected(q);
+        }
+        if (a) setAnswer(a);
+        if (t) setTags(Array.isArray(t) ? t.join(", ") : t);
+      } catch {}
+      sessionStorage.removeItem("trainer-draft");
+    }
   }, []);
 
   // Existing submit handler (unchanged)
@@ -122,7 +144,13 @@ export default function Trainer() {
         <label style={{ marginTop: 12 }}>
           Answer (text, optional if transcript or file provided)
         </label>
-        <textarea name="answer" rows={6} placeholder="Write your answer here…" />
+        <textarea
+          name="answer"
+          rows={6}
+          placeholder="Write your answer here…"
+          value={answer}
+          onChange={(e) => setAnswer(e.target.value)}
+        />
 
         <label style={{ marginTop: 12 }}>Transcript (optional)</label>
         <textarea name="transcript" rows={4} placeholder="Paste a voice transcript…" />
