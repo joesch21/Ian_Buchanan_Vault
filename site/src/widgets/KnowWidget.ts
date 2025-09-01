@@ -22,6 +22,38 @@ export class KnowWidget {
   constructor(container: HTMLElement, opts: Opts = {}) {
     this.client = new KnowClient(undefined, opts.siteId);
     this.mount(container, opts.welcome ?? "Hi! Ask about bibliography, formatting, or wiki blocks.");
+    window.addEventListener("know.ask", async (ev: any) => {
+      try {
+        const msg = ev?.detail?.msg?.trim();
+        if (!msg) return;
+        if (!this.isOpen) this.openPanel("ask-event");
+        this.appendUser(msg);
+        this.sendBtn.disabled = true;
+        const res = await this.client.query(msg);
+        if ("needsTool" in res && res.needsTool) {
+          if (res.draft) this.appendBot(res.draft);
+          const exec = async () => {
+            const out = await (await import("@/lib/knowTools")).runTool(res.call);
+            this.appendNote(out.message || "");
+          };
+          if (res.confirm && !window.confirm(res.draft || "Proceed?")) {
+            this.appendNote("Cancelled.");
+          } else {
+            await exec();
+          }
+          if (res.answer) this.appendBot(res.answer);
+        } else {
+          this.appendBot(res.answer);
+          if (res.citations?.length) {
+            this.appendNote("Sources: " + res.citations.map(c => c.title).join(", "));
+          }
+        }
+      } catch (e: any) {
+        this.appendNote(`Error: ${e?.message || String(e)}`);
+      } finally {
+        this.sendBtn.disabled = false;
+      }
+    });
     // Restore last state (per tab)
     const saved = sessionStorage.getItem(KB_STATE_KEY);
     if (saved === "true") this.openPanel("restore");

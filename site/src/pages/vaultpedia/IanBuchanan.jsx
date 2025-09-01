@@ -8,6 +8,27 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./IanBuchanan.css";
 
+function askKnow(msg) {
+  window.dispatchEvent(new CustomEvent("know.ask", { detail: { msg } }));
+}
+
+const prompts = {
+  biography:
+    "Give a concise, sourced profile of Ian Buchanan (education, appointments, key focus areas) and cite authoritative sources.",
+  work:
+    "Summarize Ian Buchanan’s major editorial projects and explain their significance in Deleuze & Guattari studies, with citations.",
+  "selected-publications":
+    "From Buchanan’s selected publications, which are most cited for assemblage and schizoanalysis? Provide brief notes and citations.",
+  "reception-influence":
+    "How has Buchanan’s work been received? Outline influence and debates among Deleuzian scholars (e.g., Massumi, Braidotti), with citations.",
+  "conceptual-contributions":
+    "Explain Buchanan’s treatment of assemblage and schizoanalysis, comparing to Deleuze & Guattari and Massumi. Include citations.",
+  "selected-talks":
+    "List 2–3 takeaways from Buchanan’s recorded talks on assemblage/schizoanalysis and point to original video timestamps if possible.",
+  references:
+    "Provide a consolidated reference block (APA/Chicago) for the sources listed on this page with stable links."
+};
+
 const sections = [
   { id: "biography", label: "1. Biography" },
   { id: "work", label: "2. Work & Editorial Projects" },
@@ -114,6 +135,9 @@ export default function IanBuchanan() {
           {/* 1. Biography */}
           <section id="biography" className="ib-section">
             <h2>1. Biography</h2>
+            <div className="ib-actions">
+              <button type="button" onClick={() => askKnow(prompts["biography"])}>Ask Know about this section</button>
+            </div>
             <ul>
               <li><strong>Name</strong>: Ian Buchanan</li>
               <li>
@@ -132,6 +156,9 @@ export default function IanBuchanan() {
           {/* 2. Work & Editorial Projects */}
           <section id="work" className="ib-section">
             <h2>2. Work &amp; Editorial Projects</h2>
+            <div className="ib-actions">
+              <button type="button" onClick={() => askKnow(prompts["work"])}>Ask Know about this section</button>
+            </div>
             <p>
               Edited special issues of <em>Social Semiotics</em> (Vol. 7:2, 1997) and <em>South Atlantic Quarterly</em> (Vol. 93:3, 1997);
               the latter issue was reprinted as the book <em>A Deleuzian Century?</em> (<a href="#ref1">Wikipedia</a>).
@@ -141,6 +168,9 @@ export default function IanBuchanan() {
           {/* 3. Selected Publications */}
           <section id="selected-publications" className="ib-section">
             <h2>3. Selected Publications</h2>
+            <div className="ib-actions">
+              <button type="button" onClick={() => askKnow(prompts["selected-publications"])}>Ask Know about this section</button>
+            </div>
 
             <h3>Authored Books</h3>
             <ul>
@@ -168,6 +198,9 @@ export default function IanBuchanan() {
           {/* 4. Reception & Influence */}
           <section id="reception-influence" className="ib-section">
             <h2>4. Reception &amp; Influence</h2>
+            <div className="ib-actions">
+              <button type="button" onClick={() => askKnow(prompts["reception-influence"])}>Ask Know about this section</button>
+            </div>
             <ul>
               <li>
                 <strong>Accessibility of Deleuze &amp; Guattari</strong>: <em>Deleuze and Guattari’s Anti‑Oedipus: A Reader’s Guide</em> has been
@@ -184,6 +217,9 @@ export default function IanBuchanan() {
           {/* 5. Conceptual Contributions */}
           <section id="conceptual-contributions" className="ib-section">
             <h2>5. Conceptual Contributions</h2>
+            <div className="ib-actions">
+              <button type="button" onClick={() => askKnow(prompts["conceptual-contributions"])}>Ask Know about this section</button>
+            </div>
             <ul>
               <li>
                 <strong>Assemblage Theory</strong>: Buchanan’s work develops empirical and methodological applications of assemblage theory; deriving research methods from Deleuze &amp; Guattari’s concept of assemblage (<a href="#ref2">UOW profile</a>).
@@ -198,6 +234,9 @@ export default function IanBuchanan() {
           {/* 6. Selected Talks */}
           <section id="selected-talks" className="ib-section">
             <h2>6. Selected Talks &amp; YouTube Resources</h2>
+            <div className="ib-actions">
+              <button type="button" onClick={() => askKnow(prompts["selected-talks"])}>Ask Know about this section</button>
+            </div>
             <p>
               Below is a selection of talks featuring Ian Buchanan. For more, see his YouTube channel (<a href="https://www.youtube.com/@ianbuchanan3199" target="_blank" rel="noreferrer noopener">@ianbuchanan3199</a>).
             </p>
@@ -214,6 +253,9 @@ export default function IanBuchanan() {
           {/* 7. References */}
           <section id="references" className="ib-section">
             <h2>7. References</h2>
+            <div className="ib-actions">
+              <button type="button" onClick={() => askKnow(prompts["references"])}>Ask Know about this section</button>
+            </div>
             <ol className="ib-refs">
               <li id="ref1">
                 <a href="https://en.wikipedia.org/wiki/Ian_Buchanan_(academic)" target="_blank" rel="noreferrer noopener">Ian Buchanan (academic) – Wikipedia</a>
