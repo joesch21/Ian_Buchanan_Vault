@@ -21,6 +21,7 @@ export default function App() {
         <NavLink to="/reading-list" className={({isActive}) => isActive ? 'active' : ''}>Reading List</NavLink>{' | '}
         <NavLink to="/instructions" className={({isActive}) => isActive ? 'active' : ''}>Instructions</NavLink>{' | '}
         <NavLink to="/trainer" className={({isActive}) => isActive ? 'active' : ''}>Trainer</NavLink>{' | '}
+        <NavLink to="/vaultpedia/ian-buchanan" className={({isActive}) => isActive ? 'active' : ''}>VaultPedia: Ian Buchanan</NavLink>{' | '}
         <NavLink to="/about" className={({isActive}) => isActive ? 'active' : ''}>About</NavLink>
       </nav>
 
