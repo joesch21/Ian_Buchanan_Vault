@@ -1,25 +1,27 @@
+/* eslint-disable import/no-default-export */
 import { ImageResponse } from "@vercel/og";
 
 export const config = { runtime: "edge" };
 
-export default async function handler(req) {
+export default async function handler(req: Request) {
   const url = new URL(req.url);
   const subtitle =
     url.searchParams.get("s") ||
-    "Deleuze & Guattari studies, assemblage, schizoanalysis";
+    "Deleuze & Guattari studies • assemblage • schizoanalysis";
+
   return new ImageResponse(
     (
       <div
         style={{
-          width: "1200px",
-          height: "630px",
+          width: 1200,
+          height: 630,
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          padding: "60px",
+          padding: 60,
           background: "#0b0c10",
           color: "#e6e6e6",
-          fontFamily: "Inter, system-ui, Arial",
+          fontFamily: "Inter, system-ui, Arial, sans-serif",
         }}
       >
         <div style={{ fontSize: 60, fontWeight: 800 }}>Ian Buchanan</div>

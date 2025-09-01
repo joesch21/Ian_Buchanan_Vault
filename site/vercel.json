@@ -11,6 +11,8 @@
     }
   ],
   "functions": {
-    "api/og/*.jsx": { "runtime": "edge" }
+    "api/og/*.jsx": { "runtime": "edge" },
+    "api/og/*.ts": { "runtime": "edge" },
+    "api/og/*.tsx": { "runtime": "edge" }
   }
 }
