@@ -107,6 +107,11 @@ function ResponsiveYouTube({ id, title }) {
 }
 
 export default function IanBuchanan() {
+  const ORIGIN =
+    (typeof window !== "undefined" && window.location.origin) ||
+    "https://buchanan-vault.vercel.app";
+  const OG_IMAGE = `${ORIGIN}/api/og/ian-buchanan`;
+
   const talks = [
     { id: "S59XUHQHUr0", title: "Ian Buchanan – Assemblage Theory (Machinic Unconscious Happy Hour)" },
     { id: "x7hkNUtIUsk", title: "What were we THINKING??? Affect and Assemblage (ISCIA Seminar)" },
@@ -169,15 +174,16 @@ export default function IanBuchanan() {
           property="og:description"
           content="Deleuze &amp; Guattari studies: assemblage, schizoanalysis, guides and talks."
         />
-        <meta property="og:image" content="/api/og/ian-buchanan" />
+        <meta property="og:image" content={OG_IMAGE} />
         <meta property="og:type" content="article" />
+        <meta property="og:url" content={`${ORIGIN}/vaultpedia/ian-buchanan`} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Ian Buchanan — VaultPedia" />
         <meta
           name="twitter:description"
           content="Deleuze &amp; Guattari studies: assemblage, schizoanalysis, guides and talks."
         />
-        <meta name="twitter:image" content="/api/og/ian-buchanan" />
+        <meta name="twitter:image" content={OG_IMAGE} />
         <script type="application/ld+json">
           {JSON.stringify(personJsonLd)}
         </script>
