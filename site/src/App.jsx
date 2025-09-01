@@ -6,6 +6,7 @@ import About from './pages/About.jsx';
 import Cartography from './pages/Cartography.tsx';
 import Trainer from './pages/Trainer.jsx';
 import Instructions from './pages/Instructions.jsx';
+import IanBuchanan from './pages/vaultpedia/IanBuchanan.jsx';
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/trainer" element={<Trainer />} />
         <Route path="/about" element={<About />} />
         <Route path="/instructions" element={<Instructions />} />
+        <Route path="/vaultpedia/ian-buchanan" element={<IanBuchanan />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
