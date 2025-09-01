@@ -35,4 +35,17 @@ export class KnowClient {
     if (!r.ok) throw new Error(`query(): ${r.status}`);
     return r.json();
   }
+
+  async groups(): Promise<{ groups: Record<string, { slug: string; description?: string; members: string[] }> }> {
+    const r = await fetch(`${this.base}/catalog/groups`);
+    if (!r.ok) throw new Error(`groups(): ${r.status}`);
+    return r.json();
+  }
+
+  async groupDetail(name: string): Promise<{ group: string; meta?: any; scholars: any[] }> {
+    const enc = encodeURIComponent(name);
+    const r = await fetch(`${this.base}/catalog/groups/${enc}`);
+    if (!r.ok) throw new Error(`groupDetail(${name}): ${r.status}`);
+    return r.json();
+  }
 }
