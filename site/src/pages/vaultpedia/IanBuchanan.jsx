@@ -163,18 +163,21 @@ export default function IanBuchanan() {
           name="keywords"
           content="Ian Buchanan, Deleuze, Guattari, assemblage theory, schizoanalysis"
         />
-        <meta property="og:title" content="Ian Buchanan – VaultPedia" />
+        {/* OpenGraph/Twitter previews */}
+        <meta property="og:title" content="Ian Buchanan — VaultPedia" />
         <meta
           property="og:description"
-          content="Expanded profile of Ian Buchanan with biography, works, and talks."
+          content="Deleuze &amp; Guattari studies: assemblage, schizoanalysis, guides and talks."
         />
-        <meta property="og:type" content="profile" />
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="Ian Buchanan – VaultPedia" />
+        <meta property="og:image" content="/api/og/ian-buchanan" />
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Ian Buchanan — VaultPedia" />
         <meta
           name="twitter:description"
-          content="Expanded profile of Ian Buchanan with biography, works, and talks."
+          content="Deleuze &amp; Guattari studies: assemblage, schizoanalysis, guides and talks."
         />
+        <meta name="twitter:image" content="/api/og/ian-buchanan" />
         <script type="application/ld+json">
           {JSON.stringify(personJsonLd)}
         </script>
