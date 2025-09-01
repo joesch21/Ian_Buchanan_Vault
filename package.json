@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@vercel/og": "^0.6.2",
     "busboy": "^1.6.0",
     "fuse.js": "^7.1.0",
     "marked": "^16.2.1",
