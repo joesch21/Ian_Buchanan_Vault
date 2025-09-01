@@ -1,0 +1,28 @@
+{
+  "Deleuzian Scholars": {
+    "slug": "deleuzian-scholars",
+    "description": "Core Anglophone interpreters of Deleuze & Guattari used throughout the Vault.",
+    "members": [
+      "Ian Buchanan",
+      "Brian Massumi",
+      "Manuel DeLanda",
+      "John Protevi",
+      "Rosi Braidotti",
+      "Claire Colebrook",
+      "Daniel W. Smith",
+      "Patricia Pisters",
+      "Keith Ansell-Pearson",
+      "Henry Somers-Hall",
+      "Frida Beckman",
+      "Jeffrey A. Bell",
+      "Miguel de Beistegui",
+      "Gregg Lambert",
+      "James R. Williams",
+      "Anne Sauvagnargues",
+      "Ronald Bogue",
+      "Eugene Holland",
+      "Paul Patton"
+    ],
+    "defaultConcepts": ["assemblage","affect","deterritorialization","becoming","war machine"]
+  }
+}
