@@ -1,5 +1,6 @@
 import React from "react";
 import CartographyAsk from "@/components/CartographyAsk";
+import NodeInfo from "@/components/NodeInfo";
 import { compileCartography } from "@/lib/cartography";
 import { renderForceGraph } from "@/lib/graphRender";
 import seedSpec from "@/tests/fixtures/spec.seed.json";
@@ -9,6 +10,7 @@ export default function Cartography() {
   const [notice, setNotice] = React.useState("");
   const [graph, setGraph] = React.useState(null as any);
   const [spec, setSpec] = React.useState<any>(null);
+  const [selected, setSelected] = React.useState<any>(null);
 
   async function compileAndRender(s:any) {
     try {
@@ -29,7 +31,9 @@ export default function Cartography() {
   React.useEffect(() => {
     if (!graph) return;
     const el = document.getElementById("graph-canvas");
-    return renderForceGraph(el as HTMLElement, graph.nodes, graph.edges);
+    return renderForceGraph(el as HTMLElement, graph.nodes, graph.edges, {
+      onNodeClick: (node:any) => setSelected(node)
+    });
   }, [graph]);
 
   return (
@@ -49,6 +53,9 @@ export default function Cartography() {
       {notice && <div className="note">{notice}</div>}
       <div id="graph-canvas" style={{minHeight:480, marginTop:12, border:"1px solid #eee", borderRadius:8}} />
       {graph && <RefsDrawer refs={graph.refs} />}
+      {selected && (
+        <NodeInfo node={selected} refsByCode={graph?.refs || {}} onClose={() => setSelected(null)} />
+      )}
     </div>
   );
 }
