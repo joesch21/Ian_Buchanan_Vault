@@ -3,7 +3,7 @@ import Home from './pages/Home.jsx';
 import Bibliography from './pages/Bibliography.jsx';
 import Compare from './pages/Compare.jsx';
 import About from './pages/About.jsx';
-import Cartography from './pages/cartography/Cartography.jsx';
+import Cartography from './pages/Cartography.tsx';
 import Trainer from './pages/Trainer.jsx';
 import Instructions from './pages/Instructions.jsx';
 import IanBuchanan from './pages/vaultpedia/IanBuchanan.jsx';
