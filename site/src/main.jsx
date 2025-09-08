@@ -5,6 +5,8 @@ import App from './App.jsx'
 import './styles/global.css'
 import "@/widgets/knowWidget.css";
 import { KnowWidget } from "@/widgets/KnowWidget";
+import { ErrorBoundary } from "@/widgets/ErrorBoundary";
+import "@/lib/globalHotkeys";
 
 createRoot(document.getElementById('root')).render(
   <HelmetProvider>
@@ -22,6 +24,10 @@ createRoot(document.getElementById('root')).render(
   window.addEventListener("DOMContentLoaded", () => {
     const host = document.createElement("div");
     document.body.appendChild(host);
-    new KnowWidget(host, { welcome: "Hi! Ask about bibliography, formatting, or wiki blocks." });
+    createRoot(host).render(
+      <ErrorBoundary>
+        <KnowWidget />
+      </ErrorBoundary>
+    );
   });
 })();
