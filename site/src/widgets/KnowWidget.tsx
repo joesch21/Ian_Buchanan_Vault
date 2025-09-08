@@ -1,7 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-export function KnowWidget() {
+type KnowWidgetProps = {
+  initialPrompt?: string;
+  context?: any;
+};
+
+export function KnowWidget({ initialPrompt = "", context }: KnowWidgetProps) {
   const disabled = typeof window !== "undefined" && localStorage.getItem("know_disabled") === "1";
   const [isOpen, setIsOpen] = useState(false);
   const [prompt, setPrompt] = useState<string>("");
@@ -11,13 +16,13 @@ export function KnowWidget() {
   useEffect(() => {
     if (isOpen) {
       console.log("Know open");
-      setPrompt("");
+      setPrompt(initialPrompt || "");
       const t = setTimeout(() => inputRef.current?.focus(), 60);
       return () => clearTimeout(t);
     } else {
       console.log("Know close");
     }
-  }, [isOpen]);
+  }, [isOpen, initialPrompt]);
 
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     try {
